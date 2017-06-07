@@ -52,7 +52,7 @@ library(Hmisc)
 #### Preparation for loop ####
 
 #### Laden der Shapes mit den Polygonen der Kreise und deren räumliche Zuordnung ####
-vg2500_krs <- read_sf("/Storage/ownCloud/Home/Klimabuero/Proj1/data//data_raw/4_michael/adminitrative_borders_Ger/", "vg2500_krs")
+vg2500_krs <- read_sf("./../Proj1/data/data_spatial/", "vg2500_krs")
 str(vg2500_krs, 2)
 
 #### Change RS to five digits #####
