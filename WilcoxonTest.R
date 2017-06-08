@@ -155,14 +155,100 @@ for (s in 1:length(modelListMatrixNames)){
   str( test_data)
   
   #### Compare columns by WilcoxonText #####
-  test <- wilcox.test( test_data$Y_anomaly_1971,  test_data$Y_anomaly_2070)
+  test <- (wilcox.test( test_data$Y_anomaly_1971,  test_data$Y_anomaly_2070))$p.value
   test$p.value
   
-  #### Group Data by comIds ####
-  test_data %>% 
-    group_by(model, comId) %>% 
-     summarise(wilcox.test( test_data$Y_anomaly_1971,  test_data$Y_anomaly_2070))
+  ########################################
+  #### Group Data by comIds and model ####
+  str(test_data)
+  namelist_models <- c("MPI","DMI","KNMI","ICTP","SMHIRCA")
+  test_data_grouped_2070_anomaly_list <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMI=list())
+  test_data_grouped_2021_anomaly_list <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMI=list())
+  test_data_grouped_2070_list <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMI=list())
+  test_data_grouped_2021_list <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMI=list())
+  
+  
+  #### Loop though five climate models to provide maps of p-values of the Wilcoxon Test ####
+  for (l in 1:5){
+  test_data_grouped_2070_anomaly_list[[l]]  <- test_data %>% 
+    filter(model == namelist_models[[l]]) %>%
+    group_by(comId) %>%
+      summarise(test = wilcox.test( test_data$Y_anomaly_1971,  test_data$Y_anomaly_2070)$p.value)
+  
+  test_data_grouped_2021_anomaly_list[[l]]  <- test_data %>% 
+    filter(model == namelist_models[[l]]) %>%
+    group_by(comId) %>%
+    summarise(test = wilcox.test( test_data$Y_anomaly_1971,  test_data$Y_anomaly_2021)$p.value)
+  
+  test_data_grouped_2070_list[[l]]  <- test_data %>% 
+    filter(model == namelist_models[[l]]) %>%
+    group_by(comId) %>%
+    summarise(test = wilcox.test( test_data$Y_1971,  test_data$Y_2070)$p.value)
+  
+  test_data_grouped_2021_list[[l]] <- test_data %>% 
+    filter(model == namelist_models[[l]]) %>%
+    group_by(comId) %>%
+    summarise(test = wilcox.test(Y_1971,  Y_2021)$p.value )
+  
+  #### Add on Spatial Data ####
+  test_data_grouped_2021_anomaly_spatial <- merge(vg2500_krs, test_data_grouped_2070_anomaly_list[[l]], by.x="RS", by.y="comId")
+  test_data_grouped_2070_anomaly_spatial <- merge(vg2500_krs, test_data_grouped_2021_anomaly_list[[l]], by.x="RS", by.y="comId")
+  test_data_grouped_2021_spatial <- merge(vg2500_krs, test_data_grouped_2070_list[[l]] , by.x="RS", by.y="comId")
+  test_data_grouped_2070_spatial <- merge(vg2500_krs, test_data_grouped_2021_list[[l]], by.x="RS", by.y="comId")
+
+  #### Maps ####
+  test_data_grouped_2021_anomaly_spatial_plot <-
+  ggplot(test_data_grouped_2021_anomaly_spatial) + 
+    geom_sf(data=vg2500_krs) + 
+    geom_sf( aes(fill = cut(test, c(0,0.05,0.1,1)) )) + 
+      scale_fill_brewer(type="seq",palette = "Blues", direction = -1) + 
+      guides(fill=guide_legend(title="p-values")) +
+      ggtitle("2021 - Anomalies")
+  
+  test_data_grouped_2070_anomaly_spatial_plot <-
+  ggplot(test_data_grouped_2070_anomaly_spatial) + 
+    geom_sf(data=vg2500_krs) + 
+    geom_sf( aes(fill = cut(test, c(0,0.05,0.1,1)) )) + 
+    scale_fill_brewer(type="seq",palette = "Blues", direction = -1) + 
+    guides(fill=guide_legend(title="p-values")) +
+    ggtitle("2070 - Anomalies")
+  
+  test_data_grouped_2021_spatial_plot
+  ggplot(test_data_grouped_2021_spatial) + 
+    geom_sf(data=vg2500_krs) + 
+    geom_sf( aes(fill = cut(test, c(0,0.05,0.1,1)) )) + 
+    scale_fill_brewer(type="seq",palette = "Blues", direction = -1) + 
+    guides(fill=guide_legend(title="p-values")) +
+    ggtitle("2021")
+  
+  test_data_grouped_2070_spatial_plot <- 
+  ggplot(test_data_grouped_2070_spatial) + 
+    geom_sf(data=vg2500_krs) + 
+    geom_sf( aes(fill = cut(test, c(0,0.05,0.1,1)) )) + 
+    scale_fill_brewer(type="seq",palette = "Blues", direction = -1) + 
+    guides(fill=guide_legend(title="p-values")) +
+    ggtitle("2070")
+  
+  ggsave(paste("./figures/figures_exploratory/Proj/Wilcoxon/", modelListMatrixNames[[s]],"/Wilcoxon_2070_anomaly_",namelist_models[[l]],".pdf", sep="") ,  test_data_grouped_2070_anomaly_spatial_plot, width=16, height=9) 
+  ggsave(paste("./figures/figures_exploratory/Proj/Wilcoxon/", modelListMatrixNames[[s]],"/Wilcoxon_2021_anomaly_",namelist_models[[l]],".pdf", sep="") ,  test_data_grouped_2021_anomaly_spatial_plot, width=16, height=9) 
+  ggsave(paste("./figures/figures_exploratory/Proj/Wilcoxon/", modelListMatrixNames[[s]],"/Wilcoxon_2070_",namelist_models[[l]],".pdf", sep="") ,  test_data_grouped_2070_spatial_plot, width=16, height=9) 
+  ggsave(paste("./figures/figures_exploratory/Proj/Wilcoxon/", modelListMatrixNames[[s]],"/Wilcoxon_2021_",namelist_models[[l]],".pdf", sep="") ,  test_data_grouped_2021_spatial_plot, width=16, height=9) 
+  
+}
+   
+  
+  dim(test_data_grouped_2021_DMI)
+  dim(test_data)
     
+  hist(test_data_grouped_2070_anomaly$test)
+  hist(test_data_grouped_2021_anomaly$test)
+  hist(test_data_grouped_2070$test)
+  hist(test_data_grouped_2070$test)
+  
+  summary(test_data_grouped_2070_anomaly_list[[l]]$test)
+  summary(test_data_grouped_2021_anomaly$test)
+  summary(test_data_grouped_2070$test)
+  summary(test_data_grouped_2070$test)
   
   for (r in 1:3){
     PredictData_df_tidy_test_list[[r]]$Y_mean_ref <- PredictData_df_tidy_test_list[[1]]$Y_mean
