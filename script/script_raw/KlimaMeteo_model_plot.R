@@ -93,12 +93,21 @@ vg2500_krs$RS
 
 ## Create List ##
 namelist_models <- c("MPI","DMI","KNMI","ICTP","SMHIRCA")
-# MeteoMonth_df_tidy <- list(DMI=data.frame(), ICTP=data.frame(), KNMI=data.frame(), MPI=data.frame(), SMHIRCA=data.frame())
+# MeteoMonth_df_tidy <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list())
+
+#################################################################
+#### Make container which stores the results of each RCM run ####
+#### Create container lists for predictive models and climate models ####
+' These containers store the plots of the yield predictions which are needed for the combined plots.'
+plot_mean_diff2070_TavJul_list <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() )
+plot_mean_diff2070_PreJul_list <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() )
+plot_mean_diff2070_SMIJun_list <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() )
+plot_mean_diff2070_SMIAug_list <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ) 
+plot_mean_diff2070_SMIJul_list <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ) 
+
 
 ###########################################
 #### Loop through all 5 climate models ####
-
-
 for (l in 1:5){
   
   #### Preperation for loop ####
@@ -216,20 +225,20 @@ for (l in 1:5){
     ggtitle("Mean: (2070-2099) - (1971-2000) ") + sc +
     theme_bw()
   # plot_mean_diff2070_TavJul
-  
-  
-  #### (2021-2050) - (1971-2000) ####
-  plot_mean_diff2021_TavJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_diff2021_sf) +
-    geom_sf(aes(fill = Tav_Jul_Mean)) +
-    ggtitle("Mean: (2021-2050) - (1971-2000)")  + sc +
-    theme_bw()
-  # plot_mean_diff2021_TavJul
-  
-  plot_mean_diff_TavJul <-grid.arrange(plot_mean_diff2021_TavJul, plot_mean_diff2070_TavJul, ncol=2, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
-  
-  # # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_mean_diff_TavJul_", namelist_models[[l]], ".pdf", sep=""), plot=plot_mean_diff_TavJul, "pdf",width=14, height=8)
-  
+  plot_mean_diff2070_TavJul_list[[l]] <- plot_mean_diff2070_TavJul 
+  # 
+  # #### (2021-2050) - (1971-2000) ####
+  # plot_mean_diff2021_TavJul <-
+  #   ggplot(MeteoMonth_df_tidy_summaries_diff2021_sf) +
+  #   geom_sf(aes(fill = Tav_Jul_Mean)) +
+  #   ggtitle("Mean: (2021-2050) - (1971-2000)")  + sc +
+  #   theme_bw()
+  # # plot_mean_diff2021_TavJul
+  # 
+  # plot_mean_diff_TavJul <-grid.arrange(plot_mean_diff2021_TavJul, plot_mean_diff2070_TavJul, ncol=2, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+  # 
+  # # # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_mean_diff_TavJul_", namelist_models[[l]], ".pdf", sep=""), plot=plot_mean_diff_TavJul, "pdf",width=14, height=8)
+  # 
   
   
   #####################################################################
@@ -251,20 +260,20 @@ for (l in 1:5){
     ggtitle("Mean: (2070-2099) - (1971-2000) ") + sc +
     theme_bw()
   # plot_mean_diff2070_PreJul
-  
-  
-  #### (2021-2050) - (1971-2000) ####
-  plot_mean_diff2021_PreJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_diff2021_sf) +
-    geom_sf(aes(fill = Pre_Jul_Mean)) +
-    ggtitle("Mean: (2021-2050) - (1971-2000)")  + sc +
-    theme_bw()
-  # plot_mean_diff2021_PreJul
-  
-  plot_mean_diff_PreJul <-grid.arrange(plot_mean_diff2021_PreJul, plot_mean_diff2070_PreJul, ncol=2, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
-  
-#  # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_mean_diff_PreJul_", namelist_models[[l]],".pdf", sep=""), plot=plot_mean_diff_PreJul, width=14, height=8)
-  
+  plot_mean_diff2070_PreJul_list[[l]] <- plot_mean_diff2070_PreJul
+#   
+#   #### (2021-2050) - (1971-2000) ####
+#   plot_mean_diff2021_PreJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_diff2021_sf) +
+#     geom_sf(aes(fill = Pre_Jul_Mean)) +
+#     ggtitle("Mean: (2021-2050) - (1971-2000)")  + sc +
+#     theme_bw()
+#   # plot_mean_diff2021_PreJul
+#   
+#   plot_mean_diff_PreJul <-grid.arrange(plot_mean_diff2021_PreJul, plot_mean_diff2070_PreJul, ncol=2, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+#   
+# #  # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_mean_diff_PreJul_", namelist_models[[l]],".pdf", sep=""), plot=plot_mean_diff_PreJul, width=14, height=8)
+#   
   
   #####################################################################
   #### Plot difference in mean of climate periods of SMI in June #####
@@ -285,20 +294,20 @@ for (l in 1:5){
     ggtitle( "Mean: (2070-2099) - (1971-2000)") + sc +
     theme_bw()
   # plot_mean_diff2070_SMIJun
-  
-  
-  #### (2021-2050) - (1971-2000) ####
-  plot_mean_diff2021_SMIJun <-
-    ggplot(MeteoMonth_df_tidy_summaries_diff2021_sf) +
-    geom_sf(aes(fill = SMI_Jun_Mean)) +
-    ggtitle( "Mean: (2021-2050) - (1971-2000)")  + sc +
-    theme_bw()
-  # plot_mean_diff2021_SMIJun
-  
-  plot_mean_diff_SMIJun <- grid.arrange(plot_mean_diff2021_SMIJun, plot_mean_diff2070_SMIJun, ncol=2, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
-  
-  # # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/", "plot_mean_diff_SMIJun_", namelist_models[[l]],".pdf", sep=""), plot=plot_mean_diff_SMIJun, width=14, height=8)
-  
+  plot_mean_diff2070_SMIJun_list[[l]] <- plot_mean_diff2070_SMIJun
+  # 
+  # #### (2021-2050) - (1971-2000) ####
+  # plot_mean_diff2021_SMIJun <-
+  #   ggplot(MeteoMonth_df_tidy_summaries_diff2021_sf) +
+  #   geom_sf(aes(fill = SMI_Jun_Mean)) +
+  #   ggtitle( "Mean: (2021-2050) - (1971-2000)")  + sc +
+  #   theme_bw()
+  # # plot_mean_diff2021_SMIJun
+  # 
+  # plot_mean_diff_SMIJun <- grid.arrange(plot_mean_diff2021_SMIJun, plot_mean_diff2070_SMIJun, ncol=2, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+  # 
+  # # # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/", "plot_mean_diff_SMIJun_", namelist_models[[l]],".pdf", sep=""), plot=plot_mean_diff_SMIJun, width=14, height=8)
+  # 
   
   #####################################################################
   #### Plot difference in mean of climate periods of SMI in July #####
@@ -319,17 +328,17 @@ for (l in 1:5){
     ggtitle( "Mean: (2070-2099) - (1971-2000)") + sc +
     theme_bw()
   # plot_mean_diff2070_SMIJul
+  plot_mean_diff2070_SMIJul_list[[l]] <- plot_mean_diff2070_SMIJul
   
-  
-  #### (2021-2050) - (1971-2000) ####
-  plot_mean_diff2021_SMIJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_diff2021_sf) +
-    geom_sf(aes(fill = SMI_Jul_Mean)) +
-    ggtitle( "Mean: (2021-2050) - (1971-2000)")  + sc +
-    theme_bw()
-  # plot_mean_diff2021_SMIJul
-  
-  plot_mean_diff_SMIJul <- grid.arrange(plot_mean_diff2021_SMIJul, plot_mean_diff2070_SMIJul, ncol=2, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+  # #### (2021-2050) - (1971-2000) ####
+  # plot_mean_diff2021_SMIJul <-
+  #   ggplot(MeteoMonth_df_tidy_summaries_diff2021_sf) +
+  #   geom_sf(aes(fill = SMI_Jul_Mean)) +
+  #   ggtitle( "Mean: (2021-2050) - (1971-2000)")  + sc +
+  #   theme_bw()
+  # # plot_mean_diff2021_SMIJul
+  # 
+  # plot_mean_diff_SMIJul <- grid.arrange(plot_mean_diff2021_SMIJul, plot_mean_diff2070_SMIJul, ncol=2, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
   
   # # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/", "plot_mean_diff_SMIJul_", namelist_models[[l]],".pdf", sep=""), plot=plot_mean_diff_SMIJul, width=14, height=8)
   
@@ -352,794 +361,794 @@ for (l in 1:5){
     ggtitle("Mean: (2070-2099) - (1971-2000)") + sc +
     theme_bw()
   # plot_mean_diff2070_SMIAug
-  
-  
-  ####  (2021-2050) - (1971-2000) ####
-  plot_mean_diff2021_SMIAug <-
-    ggplot(MeteoMonth_df_tidy_summaries_diff2021_sf) +
-    geom_sf(aes(fill = SMI_Aug_Mean)) +
-    ggtitle("Mean: (2021-2050) - (1971-2000)")  + sc +
-    theme_bw()
-  # plot_mean_diff2021_SMIAug
-  
-  plot_mean_diff_SMIAug <-grid.arrange(plot_mean_diff2021_SMIAug, plot_mean_diff2070_SMIAug, ncol=2, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
-  
-  # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/", "plot_mean_diff_SMIAug_",namelist_models[[l]],".pdf", sep=""), plot=plot_mean_diff_SMIAug, width=14, height=8)
-  
-  
-  
-  ##############################################################################################################################################################################
-  #### Plots of absolute values ####
-  ##############################################################################################################################################################################
-  '
-  Plot of absolute values (Mean)  for each climate period 
-  - Tav in July
-  - Pre in July 
-  - SMI in June
-  - SMI in July
-  - SMI in August
-  
-  '
-  ###########################################################
-  #### Plot Mean for each climate period of Tav in July ####
-  #########################################################
-  
-  ## Define colorRamp ##
-  str(MeteoMonth_df_tidy_summaries_sf_list,1)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[1]]$Tav_Jul_Mean)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[2]]$Tav_Jul_Mean)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[3]]$Tav_Jul_Mean)
-  
-  
-  myPalette <- colorRampPalette((brewer.pal(9, "RdPu")))
-  sc <- scale_fill_gradientn("July Temp.",colours = myPalette(100), limits=c(11, 24))
-  
-  ## Plot Mean: 1970 - 2000 - Tav July ##
-  plot_mean_1970_TavJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[1]]) +
-    geom_sf(aes(fill = Tav_Jul_Mean)) +
-    ggtitle("Mean: 1970 - 2000") + sc +
-    theme_bw()
-  
-  # plot_mean_1970_TavJul
-  
-  ## Plot Mean: 2021 - 2050 - Tav July ##
-  plot_mean_2021_TavJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[2]]) +
-    geom_sf(aes(fill = Tav_Jul_Mean)) +
-    ggtitle("Mean: 2021 - 2050") + sc +
-    theme_bw()
-  
-  # plot_mean_2021_TavJul
-  
-  ## Plot Mean: 2070 - 2099 - Tav July ##
-  plot_mean_2070_TavJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[3]]) +
-    geom_sf(aes(fill = Tav_Jul_Mean)) +
-    ggtitle("Mean: 2070 - 2099") + sc +
-    theme_bw()
-  
-  # plot_mean_2070_TavJul
-  
-  plot_mean_TavJul <- grid.arrange(plot_mean_1970_TavJul, plot_mean_2021_TavJul, plot_mean_2070_TavJul, ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
-  # plot_mean_TavJul
-  
-  # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/", "plot_mean_TavJul_",namelist_models[[l]],".pdf", sep=""), plot=plot_mean_TavJul, width=21, height=8)
-  
-  ###########################################################
-  #### Plot Mean for each climate period of Pre in July ####
-  #########################################################
-  
-  ## Define colorRamp ##
-  str(MeteoMonth_df_tidy_summaries_sf_list,1)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[1]]$Pre_Jul_Mean)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[2]]$Pre_Jul_Mean)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[3]]$Pre_Jul_Mean)
-  
-  
-  myPalette <- colorRampPalette((brewer.pal(9, "PuBu")))
-  sc <- scale_fill_gradientn("July Prec.",colours = myPalette(100), limits=c(20, 220))
-  
-  ## Plot Mean: 1970 - 2000 - Tav July ##
-  plot_mean_1970_PreJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[1]]) +
-    geom_sf(aes(fill = Pre_Jul_Mean)) +
-    ggtitle("Mean: 1970 - 2000") + sc +
-    theme_bw()
-  
-  # plot_mean_1970_PreJul
-  
-  ## Plot Mean: 2021 - 2050 - Tav July ##
-  plot_mean_2021_PreJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[2]]) +
-    geom_sf(aes(fill = Pre_Jul_Mean)) +
-    ggtitle("Mean: 2021 - 2050") + sc +
-    theme_bw()
-  
-  # plot_mean_2021_PreJul
-  
-  ## Plot Mean: 2070 - 2099 - Tav July ##
-  plot_mean_2070_PreJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[3]]) +
-    geom_sf(aes(fill = Pre_Jul_Mean)) +
-    ggtitle("Mean: 2070 - 2099") + sc +
-    theme_bw()
-  
-  # plot_mean_2070_PreJul
-  
-  ## Combine all three plot
-  plot_mean_PreJul <- grid.arrange(plot_mean_1970_PreJul , plot_mean_2021_PreJul , plot_mean_2070_PreJul , ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
-  # plot_mean_PreJul
-  
-  # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_mean_PreJul_", namelist_models[[l]],".pdf", sep=""), plot=plot_mean_PreJul , width=21, height=8)
-  
-  ###########################################################
-  #### Plot Mean for each climate period of SMI in June ####
-  #########################################################
-  
-  ## Define colorRamp ##
-  str(MeteoMonth_df_tidy_summaries_sf_list,1)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[1]]$SMI_Jun_Mean)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[2]]$SMI_Jun_Mean)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[3]]$SMI_Jun_Mean)
-  
-  myPalette <- colorRampPalette((brewer.pal(9, "YlGnBu")))
-  sc <- scale_fill_gradientn("June SMI",colours = myPalette(100), limits=c(0.3, 0.7))
-  
-  ## Plot Mean: 1970 - 2000 - Tav July ##
-  plot_mean_1970_SMIJun <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[1]]) +
-    geom_sf(aes(fill = SMI_Jun_Mean)) +
-    ggtitle("Mean: 1970 - 2000") + sc +
-    theme_bw()
-  
-  # plot_mean_1970_SMIJun
-  
-  ## Plot Mean: 2021 - 2050 - Tav July ##
-  plot_mean_2021_SMIJun <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[2]]) +
-    geom_sf(aes(fill = SMI_Jun_Mean)) +
-    ggtitle("Mean: 2021 - 2050") + sc +
-    theme_bw()
-  
-  # plot_mean_2021_SMIJun
-  
-  ## Plot Mean: 2070 - 2099 - Tav July ##
-  plot_mean_2070_SMIJun <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[3]]) +
-    geom_sf(aes(fill = SMI_Jun_Mean)) +
-    ggtitle("Mean: 2070 - 2099") + sc +
-    theme_bw()
-  
-  # plot_mean_2070_SMIJun
-  
-  
-  ## Combine all three plot
-  plot_mean_SMIJun <- grid.arrange(plot_mean_1970_SMIJun , plot_mean_2021_SMIJun , plot_mean_2070_SMIJun , ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
-  # plot_mean_SMIJun
-  
-  # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_mean_SMIJun_", namelist_models[[l]],".pdf", sep=""), plot=plot_mean_SMIJun , width=21, height=8)
-  
-  ###########################################################
-  #### Plot Mean for each climate period of SMI in July ####
-  #########################################################
-  
-  ## Define colorRamp ##
-  str(MeteoMonth_df_tidy_summaries_sf_list,1)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[1]]$SMI_Jul_Mean)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[2]]$SMI_Jul_Mean)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[3]]$SMI_Jul_Mean)
-  
-  myPalette <- colorRampPalette((brewer.pal(9, "YlGnBu")))
-  sc <- scale_fill_gradientn("July SMI",colours = myPalette(100), limits=c(0.3, 0.7))
-  
-  ## Plot Mean: 1970 - 2000 - Tav July ##
-  plot_mean_1970_SMIJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[1]]) +
-    geom_sf(aes(fill = SMI_Jul_Mean)) +
-    ggtitle("Mean: 1970 - 2000") + sc +
-    theme_bw()
-  
-  # plot_mean_1970_SMIJul
-  
-  ## Plot Mean: 2021 - 2050 - Tav July ##
-  plot_mean_2021_SMIJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[2]]) +
-    geom_sf(aes(fill = SMI_Jul_Mean)) +
-    ggtitle("Mean: 2021 - 2050") + sc +
-    theme_bw()
-  
-  # plot_mean_2021_SMIJul
-  
-  ## Plot Mean: 2070 - 2099 - Tav July ##
-  plot_mean_2070_SMIJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[3]]) +
-    geom_sf(aes(fill = SMI_Jul_Mean)) +
-    ggtitle("Mean: 2070 - 2099") + sc +
-    theme_bw()
-  
-  # plot_mean_2070_SMIJul
-  
-  
-  ## Combine all three plot
-  plot_mean_SMIJul <- grid.arrange(plot_mean_1970_SMIJul , plot_mean_2021_SMIJul , plot_mean_2070_SMIJul , ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
-  # plot_mean_SMIJul
-  
-  # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_mean_SMIJul_", namelist_models[[l]],".pdf", sep=""), plot=plot_mean_SMIJul , width=21, height=8)
-  
-  
-  #############################################################
-  #### Plot Mean for each climate period of SMI in August ####
-  ###########################################################
-  
-  ## Define colorRamp ##
-  str(MeteoMonth_df_tidy_summaries_sf_list,1)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[1]]$SMI_Aug_Mean)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[2]]$SMI_Aug_Mean)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[3]]$SMI_Aug_Mean)
-  
-  myPalette <- colorRampPalette((brewer.pal(9, "YlGnBu")))
-  sc <- scale_fill_gradientn("August SMI",colours = myPalette(100), limits=c(0.3, 0.7))
-  
-  ## Plot Mean: 1970 - 2000 - Tav July ##
-  plot_mean_1970_SMIAug <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[1]]) +
-    geom_sf(aes(fill = SMI_Aug_Mean)) +
-    ggtitle("Mean: 1970 - 2000") + sc +
-    theme_bw()
-  
-  # plot_mean_1970_SMIAug
-  
-  ## Plot Mean: 2021 - 2050 - Tav July ##
-  plot_mean_2021_SMIAug <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[2]]) +
-    geom_sf(aes(fill = SMI_Aug_Mean)) +
-    ggtitle("Mean: 2021 - 2050") + sc +
-    theme_bw()
-  
-  # plot_mean_2021_SMIAug
-  
-  ## Plot Mean: 2070 - 2099 - Tav July ##
-  plot_mean_2070_SMIAug <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[3]]) +
-    geom_sf(aes(fill = SMI_Aug_Mean)) +
-    ggtitle("Mean: 2070 - 2099") + sc +
-    theme_bw()
-  
-  # plot_mean_2070_SMIAug
-  
-  
-  ## Combine all three plot
-  plot_mean_SMIAug <- grid.arrange(plot_mean_1970_SMIAug , plot_mean_2021_SMIAug , plot_mean_2070_SMIAug , ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
-  # plot_mean_SMIAug
-  
-  # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_mean_SMIAug_", namelist_models[[l]],".pdf", sep=""), plot=plot_mean_SMIAug , width=21, height=8)
-  
-  # ################################################################################################################################################################################################
-  # #### Make combined Plots of Means ####
-  # ################################################################################################################################################################################################
-  # ' For the yield plots it is necessary to load plot_mean_diff...list via the BasePrediction_Plots Script. '
+  plot_mean_diff2070_SMIAug_list[[l]] <- plot_mean_diff2070_SMIAug
+  # 
+  # ####  (2021-2050) - (1971-2000) ####
+  # plot_mean_diff2021_SMIAug <-
+  #   ggplot(MeteoMonth_df_tidy_summaries_diff2021_sf) +
+  #   geom_sf(aes(fill = SMI_Aug_Mean)) +
+  #   ggtitle("Mean: (2021-2050) - (1971-2000)")  + sc +
+  #   theme_bw()
+  # # plot_mean_diff2021_SMIAug
+  # 
+  # plot_mean_diff_SMIAug <-grid.arrange(plot_mean_diff2021_SMIAug, plot_mean_diff2070_SMIAug, ncol=2, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+  # 
+  # # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/", "plot_mean_diff_SMIAug_",namelist_models[[l]],".pdf", sep=""), plot=plot_mean_diff_SMIAug, width=14, height=8)
   # 
   # 
-  # 'Combined Plots
-  # - TavJul, PreJul, SMIJun, SMIAug
-  # - TavJul, PreJul, SMIJun, SMIAug, Yield
-  # - TavJul, PreJul, SMIJul
-  # - TavJul, PreJul, SMIJul, Yield'
   # 
-  # 'For the yield plots it is necessary to load plot_sd_diff...list via the BasePrediction_Plots Script. '
-  # 
-  # #######################################################
-  # #### Mean plots for TavJul, PreJul, SMIJun, SMIAug ####
-  # plot_mean_SMI_6_Jun_Aug <- grid.arrange(plot_mean_1970_TavJul , plot_mean_1970_PreJul,  plot_mean_1970_SMIJun, plot_mean_1970_SMIAug,
-  #                                         plot_mean_diff2021_TavJul, plot_mean_diff2021_PreJul, plot_mean_diff2021_SMIJun, plot_mean_diff2021_SMIAug,
-  #                                         plot_mean_diff2070_TavJul, plot_mean_diff2070_PreJul, plot_mean_diff2070_SMIJun, plot_mean_diff2070_SMIAug,
-  #                                         ncol=4, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
-  # plot_mean_SMI_6_Jun_Aug
-  # # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_mean_SMI_6_Jun_Aug_", namelist_models[[l]],".pdf", sep=""), plot=plot_mean_SMI_6_Jun_Aug , width=28, height=24)
-  # 
-  # # ##############################################################
-  # # #### Mean plots for TavJul, PreJul, SMIJun, SMIAug, Yield ####
-  # # plot_mean_yield_SMI_6_Jun_Aug <- grid.arrange(plot_mean_1970_TavJul , plot_mean_1970_PreJul,  plot_mean_1970_SMIJun, plot_mean_1970_SMIAug,plot_mean_1971_list[[1]][[l]],
-  # #                                               plot_mean_diff2021_TavJul, plot_mean_diff2021_PreJul, plot_mean_diff2021_SMIJun, plot_mean_diff2021_SMIAug, plot_mean_diff2021_list[[1]][[l]],
-  # #                                               plot_mean_diff2070_TavJul, plot_mean_diff2070_PreJul, plot_mean_diff2070_SMIJun, plot_mean_diff2070_SMIAug, plot_mean_diff2070_list[[1]][[l]],
-  # #                                               ncol = 5, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=25)))
-  # # plot_mean_yield_SMI_6_Jun_Aug
-  # # 
-  # # # ggsave(paste("./figures/figures_exploratory/Proj/Combined/","plot_mean_yield_SMI_6_Jun_Aug_", namelist_models[[l]],".pdf", sep=""), plot=plot_mean_yield_SMI_6_Jun_Aug , width=35, height=24)
-  # # 
-  # ###############################################
-  # #### Mean plots for TavJul, PreJul, SMIJul ####
-  # plot_mean_SMI_6_Jul <- grid.arrange(plot_mean_1970_TavJul , plot_mean_1970_PreJul,  plot_mean_1970_SMIJul,
-  #                                     plot_mean_diff2021_TavJul, plot_mean_diff2021_PreJul, plot_mean_diff2021_SMIJul,
-  #                                     plot_mean_diff2070_TavJul, plot_mean_diff2070_PreJul, plot_mean_diff2070_SMIJul,
-  #                                     ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
-  # plot_mean_SMI_6_Jul
-  # # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_mean_SMI_6_Jul_", namelist_models[[l]],".pdf", sep=""), plot=plot_mean_SMI_6_Jul , width=28, height=24)
-  # 
-  # # ######################################################
-  # # #### Mean plots for TavJul, PreJul, SMIJul, Yield ####
-  # # plot_mean_yield_SMI_6_Jul <- grid.arrange(plot_mean_1970_TavJul , plot_mean_1970_PreJul,  plot_mean_1970_SMIJul, plot_mean_1971_list[[2]][[l]],
-  # #                                           plot_mean_diff2021_TavJul, plot_mean_diff2021_PreJul, plot_mean_diff2021_SMIJul,  plot_mean_diff2021_list[[2]][[l]],
-  # #                                           plot_mean_diff2070_TavJul, plot_mean_diff2070_PreJul, plot_mean_diff2070_SMIJul, plot_mean_diff2070_list[[2]][[l]],
-  # #                                           ncol = 4, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=20)))
-  # # plot_mean_yield_SMI_6_Jul
-  # # 
-  # # # ggsave(paste("./figures/figures_exploratory/Proj/Combined/","plot_mean_yield_SMI_6_Jul_", namelist_models[[l]],".pdf", sep=""), plot=plot_mean_yield_SMI_6_Jul , width=28, height=24)
-  # # 
-  # # 
-  # 
-  ##############################################################################################################################################################################
-  ##############################################################################################################################################################################
-  #### Plots of SDs ####
-  ##############################################################################################################################################################################
-  '
-  Plot of absolute values (SD)  for each climate period 
-  - Tav in July
-  - Pre in July 
-  - SMI in June
-  - SMI in July
-  - SMI in August
-  
-  '
-  #########################################################
-  #### Plot SD for each climate period of Tav in July ####
-  #######################################################
-  
-  ## Define colorRamp ##
-  str(MeteoMonth_df_tidy_summaries_sf_list,1)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[1]]$Tav_Jul_Sd)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[2]]$Tav_Jul_Sd)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[3]]$Tav_Jul_Sd)
-  
-  
-  myPalette <- colorRampPalette((brewer.pal(9, "RdPu")))
-  sc <- scale_fill_gradientn("July Temp.", colours = myPalette(100), limits=c(0, 2.5))
-  
-  ## Plot Standard Deviation: 1970 - 2000 - Tav July ##
-  plot_sd_1970_TavJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[1]]) +
-    geom_sf(aes(fill = Tav_Jul_Sd)) +
-    ggtitle("SD: 1970 - 2000") + sc +
-    theme_bw()
-  
-  plot_sd_1970_TavJul
-  
-  ## Plot Standard Deviation: 2021 - 2050 - Tav July ##
-  plot_sd_2021_TavJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[2]]) +
-    geom_sf(aes(fill = Tav_Jul_Sd)) +
-    ggtitle("SD: 2021 - 2050") + sc +
-    theme_bw()
-  
-  plot_sd_2021_TavJul
-  
-  ## Plot Standard Deviation: 2070 - 2099 - Tav July ##
-  plot_sd_2070_TavJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[3]]) +
-    geom_sf(aes(fill = Tav_Jul_Sd)) +
-    ggtitle("SD: 2070 - 2099") + sc +
-    theme_bw()
-  
-  plot_sd_2070_TavJul
-  
-  plot_sd_TavJul <- grid.arrange(plot_sd_1970_TavJul, plot_sd_2021_TavJul, plot_sd_2070_TavJul, ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
-  plot_sd_TavJul
-  
-  # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_sd_TavJul_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_TavJul, width=21, height=8)
-  
-  #########################################################
-  #### Plot SD for each climate period of Pre in July ####
-  #######################################################
-  
-  ## Define colorRamp ##
-  str(MeteoMonth_df_tidy_summaries_sf_list,1)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[1]]$Pre_Jul_Sd)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[2]]$Pre_Jul_Sd)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[3]]$Pre_Jul_Sd)
-  
-  
-  myPalette <- colorRampPalette((brewer.pal(9, "PuBu")))
-  sc <- scale_fill_gradientn("July Prec.",colours = myPalette(100), limits=c(0, 100))
-  
-  ## Plot Standard Deviation: 1970 - 2000 - Tav July ##
-  plot_sd_1970_PreJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[1]]) +
-    geom_sf(aes(fill = Pre_Jul_Sd)) +
-    ggtitle("SD: 1970 - 2000") + sc +
-    theme_bw()
-  
-  plot_sd_1970_PreJul
-  
-  ## Plot Standard Deviation: 2021 - 2050 - Tav July ##
-  plot_sd_2021_PreJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[2]]) +
-    geom_sf(aes(fill = Pre_Jul_Sd)) +
-    ggtitle("SD: 2021 - 2050") + sc +
-    theme_bw()
-  
-  plot_sd_2021_PreJul
-  
-  ## Plot Standard Deviation: 2070 - 2099 - Tav July ##
-  plot_sd_2070_PreJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[3]]) +
-    geom_sf(aes(fill = Pre_Jul_Sd)) +
-    ggtitle("SD: 2070 - 2099") + sc +
-    theme_bw()
-  
-  plot_sd_2070_PreJul
-  
-  ## Combine all three plot
-  plot_sd_PreJul <- grid.arrange(plot_sd_1970_PreJul , plot_sd_2021_PreJul , plot_sd_2070_PreJul , ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
-  plot_sd_PreJul
-  
-  # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_sd_PreJul_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_PreJul , width=21, height=8)
-  
-  
-  ###########################################################
-  #### Plot Sd for each climate period of SMI in June ####
-  #########################################################
-  
-  ## Define colorRamp ##
-  str(MeteoMonth_df_tidy_summaries_sf_list,1)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[1]]$SMI_Jun_Sd)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[2]]$SMI_Jun_Sd)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[3]]$SMI_Jun_Sd)
-  
-  
-  myPalette <- colorRampPalette((brewer.pal(9, "GnBu")))
-  sc <- scale_fill_gradientn("June SMI", colours = myPalette(100), limits=c(0.1, 0.4))
-  
-  ## Plot SD: 1970 - 2000 - Tav July ##
-  plot_sd_1970_SMIJun <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[1]]) +
-    geom_sf(aes(fill = SMI_Jun_Sd)) +
-    ggtitle("SD: 1970 - 2000") + sc +
-    theme_bw()
-  
-  plot_sd_1970_SMIJun
-  
-  ## Plot SD: 2021 - 2050 - Tav July ##
-  plot_sd_2021_SMIJun <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[2]]) +
-    geom_sf(aes(fill = SMI_Jun_Sd)) +
-    ggtitle("SD: 2021 - 2050") + sc +
-    theme_bw()
-  
-  plot_sd_2021_SMIJun
-  
-  ## Plot SD: 2070 - 2099 - Tav July ##
-  plot_sd_2070_SMIJun <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[3]]) +
-    geom_sf(aes(fill = SMI_Jun_Sd)) +
-    ggtitle("SD: 2070 - 2099") + sc +
-    theme_bw()
-  
-  plot_sd_2070_SMIJun
-  
-  
-  ## Combine all three plot
-  plot_sd_SMIJun <- grid.arrange(plot_sd_1970_SMIJun , plot_sd_2021_SMIJun , plot_sd_2070_SMIJun , ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
-  plot_sd_SMIJun
-  
-  # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_sd_SMIJun_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_SMIJun , width=21, height=8)
-  
-  ###########################################################
-  #### Plot Sd for each climate period of SMI in July ####
-  #########################################################
-  
-  ## Define colorRamp ##
-  str(MeteoMonth_df_tidy_summaries_sf_list,1)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[1]]$SMI_Jul_Sd)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[2]]$SMI_Jul_Sd)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[3]]$SMI_Jul_Sd)
-  
-  
-  myPalette <- colorRampPalette((brewer.pal(9, "GnBu")))
-  sc <- scale_fill_gradientn("July SMI", colours = myPalette(100), limits=c(0.1, 0.4))
-  
-  ## Plot SD: 1970 - 2000 - Tav July ##
-  plot_sd_1970_SMIJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[1]]) +
-    geom_sf(aes(fill = SMI_Jul_Sd)) +
-    ggtitle("SD: 1970 - 2000") + sc +
-    theme_bw()
-  
-  plot_sd_1970_SMIJul
-  
-  ## Plot SD: 2021 - 2050 - Tav July ##
-  plot_sd_2021_SMIJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[2]]) +
-    geom_sf(aes(fill = SMI_Jul_Sd)) +
-    ggtitle("SD: 2021 - 2050") + sc +
-    theme_bw()
-  
-  plot_sd_2021_SMIJul
-  
-  ## Plot SD: 2070 - 2099 - Tav July ##
-  plot_sd_2070_SMIJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[3]]) +
-    geom_sf(aes(fill = SMI_Jul_Sd)) +
-    ggtitle("SD: 2070 - 2099") + sc +
-    theme_bw()
-  
-  plot_sd_2070_SMIJul
-  
-  
-  ## Combine all three plot
-  plot_sd_SMIJul <- grid.arrange(plot_sd_1970_SMIJul , plot_sd_2021_SMIJul , plot_sd_2070_SMIJul , ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
-  plot_sd_SMIJul
-  
-  # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_sd_SMIJul_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_SMIJul , width=21, height=8)
-  
-  #############################################################
-  #### Plot Sd for each climate period of SMI in August ####
-  ###########################################################
-  
-  ## Define colorRamp ##
-  str(MeteoMonth_df_tidy_summaries_sf_list,1)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[1]]$SMI_Aug_Sd)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[2]]$SMI_Aug_Sd)
-  summary(MeteoMonth_df_tidy_summaries_sf_list [[3]]$SMI_Aug_Sd)
-  
-  
-  myPalette <- colorRampPalette((brewer.pal(9, "GnBu")))
-  sc <- scale_fill_gradientn(colours = myPalette(100), limits=c(0.1, 0.4))
-  
-  ## Plot SD: 1970 - 2000 - Tav July ##
-  plot_sd_1970_SMIAug <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[1]]) +
-    geom_sf(aes(fill = SMI_Aug_Sd)) +
-    ggtitle("SD: 1970 - 2000") + sc +
-    theme_bw()
-  
-  plot_sd_1970_SMIAug
-  
-  ## Plot SD: 2021 - 2050 - Tav July ##
-  plot_sd_2021_SMIAug <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[2]]) +
-    geom_sf(aes(fill = SMI_Aug_Sd)) +
-    ggtitle("SD: 2021 - 2050") + sc +
-    theme_bw()
-  
-  plot_sd_2021_SMIAug
-  
-  ## Plot SD: 2070 - 2099 - Tav July ##
-  plot_sd_2070_SMIAug <-
-    ggplot(MeteoMonth_df_tidy_summaries_sf_list [[3]]) +
-    geom_sf(aes(fill = SMI_Aug_Sd)) +
-    ggtitle("SD: 2070 - 2099") + sc +
-    theme_bw()
-  
-  plot_sd_2070_SMIAug
-  
-  
-  ## Combine all three plot
-  plot_sd_SMIAug <- grid.arrange(plot_sd_1970_SMIAug , plot_sd_2021_SMIAug , plot_sd_2070_SMIAug , ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
-  plot_sd_SMIAug
-  
-  # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_sd_SMIAug_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_SMIAug , width=21, height=8)
-  
-  
-  ##############################################################################################################################################################################
-  #### Plot Differences in SD ####
-  ##############################################################################################################################################################################
-  ' Plots of Difference in SD , climate periods (2021-2050, 2070-2099), compared to reference period (1971-2000)
-  - Tav in July
-  - Pre in July
-  - SMI in June
-  - SMI in July
-  - SMI in August
-  '
-  #####################################################################
-  #### Plot difference in Sd of climate periods of Tav in July #####
-  ###################################################################
-  
-  #### Define colorRamp for July Temperature ####
-  summary(MeteoMonth_df_tidy_summaries_diff2070_sf$Tav_Jul_Sd)
-  summary(MeteoMonth_df_tidy_summaries_diff2021_sf$Tav_Jul_Sd)
-  
-  myPalette <- colorRampPalette((brewer.pal(9, "PRGn")))
-  sc <- scale_fill_gradientn("July Temp.", colours = myPalette(100), limits=c(-0.7, 0.7))
-  
-  #### Plot Sd of Sd (2070-2099) - (1971-2000) ####
-  plot_sd_diff2070_TavJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_diff2070_sf) +
-    geom_sf(aes(fill = Tav_Jul_Sd)) +
-    ggtitle("SD: (2070-2099) - (1971-2000) ") + sc +
-    theme_bw()
-  plot_sd_diff2070_TavJul
-  
-  #### Plot Sdof Sd (2021-2050) - (1971-2000) ####
-  plot_sd_diff2021_TavJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_diff2021_sf) +
-    geom_sf(aes(fill = Tav_Jul_Sd)) +
-    ggtitle("SD: (2021-2050) - (1971-2000)")  + sc +
-    theme_bw()
-  plot_sd_diff2021_TavJul
-  
-  plot_sd_diff_TavJul <-grid.arrange(plot_sd_diff2021_TavJul, plot_sd_diff2070_TavJul, ncol=2, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
-  plot_sd_diff_TavJul
-  
-  # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_sd_diff_TavJul_", namelist_models[[l]], ".pdf", sep=""), plot=plot_sd_diff_TavJul, "pdf",width=14, height=8)
-  
-  
-  
-  #####################################################################
-  #### Plot difference in Sd of climate periods of Pre in July #####
-  ###################################################################
-  
-  #### Define colorRamp for July Temperature ####
-  summary(MeteoMonth_df_tidy_summaries_diff2070_sf$Pre_Jul_Sd)
-  summary(MeteoMonth_df_tidy_summaries_diff2021_sf$Pre_Jul_Sd)
-  
-  myPalette <- colorRampPalette((brewer.pal(11, "PRGn")))
-  sc <- scale_fill_gradientn("July Prec.",colours = myPalette(100), limits=c(-25, 25))
-  
-  #### Plot Difference of Sd (2070-2099) - (1971-2000) ####
-  plot_sd_diff2070_PreJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_diff2070_sf) +
-    geom_sf(aes(fill = Pre_Jul_Sd)) +
-    ggtitle("SD: (2070-2099) - (1971-2000) ") + sc +
-    theme_bw()
-  plot_sd_diff2070_PreJul
-  
-  #### Plot Difference of Sd (2021-2050) - (1971-2000) ####
-  plot_sd_diff2021_PreJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_diff2021_sf) +
-    geom_sf(aes(fill = Pre_Jul_Sd)) +
-    ggtitle("SD: (2021-2050) - (1971-2000)")  + sc +
-    theme_bw()
-  plot_sd_diff2021_PreJul
-  
-  plot_sd_diff_PreJul <-grid.arrange(plot_sd_diff2021_PreJul, plot_sd_diff2070_PreJul, ncol=2, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
-  
-  # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_sd_diff_PreJul_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_diff_PreJul, width=14, height=8)
-  
-  
-  #####################################################################
-  #### Plot difference in Sd of climate periods of SMI in June #####
-  ###################################################################
-  
-  #### Define colorRamp for June SMI ####
-  summary(MeteoMonth_df_tidy_summaries_diff2070_sf$SMI_Jun_Sd)
-  summary(MeteoMonth_df_tidy_summaries_diff2021_sf$SMI_Jun_Sd)
-  
-  myPalette <- colorRampPalette((brewer.pal(11, "PRGn")))
-  sc <- scale_fill_gradientn("June SMI", colours = myPalette(100), limits=c(-0.25, 0.25))
-  
-  #### Plot Difference of Sd (2070-2099) - (1971-2000) ####
-  plot_sd_diff2070_SMIJun <-
-    ggplot(MeteoMonth_df_tidy_summaries_diff2070_sf) +
-    geom_sf(aes(fill = SMI_Jun_Sd)) +
-    ggtitle( "SD: (2070-2099) - (1971-2000)") + sc +
-    theme_bw()
-  plot_sd_diff2070_SMIJun
-  
-  #### Plot Difference of Sd (2021-2050) - (1971-2000) ####
-  plot_sd_diff2021_SMIJun <-
-    ggplot(MeteoMonth_df_tidy_summaries_diff2021_sf) +
-    geom_sf(aes(fill = SMI_Jun_Sd)) +
-    ggtitle( "SD: (2021-2050) - (1971-2000)")  + sc +
-    theme_bw()
-  plot_sd_diff2021_SMIJun
-  
-  plot_sd_diff_SMIJun <- grid.arrange(plot_sd_diff2021_SMIJun, plot_sd_diff2070_SMIJun, ncol=2, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
-  
-  # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/", "plot_sd_diff_SMIJun_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_diff_SMIJun, width=14, height=8)
-  
-  ###################################################################
-  #### Plot difference in Sd of climate periods of SMI in July #####
-  #################################################################
-  
-  #### Define colorRamp for July SMI ####
-  summary(MeteoMonth_df_tidy_summaries_diff2070_sf$SMI_Jul_Sd)
-  summary(MeteoMonth_df_tidy_summaries_diff2021_sf$SMI_Jul_Sd)
-  
-  myPalette <- colorRampPalette((brewer.pal(11, "PRGn")))
-  sc <- scale_fill_gradientn("July SMI", colours = myPalette(100), limits=c(-0.25, 0.25))
-  
-  #### Plot Difference of Sd (2070-2099) - (1971-2000) ####
-  plot_sd_diff2070_SMIJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_diff2070_sf) +
-    geom_sf(aes(fill = SMI_Jul_Sd)) +
-    ggtitle( "SD: (2070-2099) - (1971-2000)") + sc +
-    theme_bw()
-  plot_sd_diff2070_SMIJul
-  
-  #### Plot Difference of Sd (2021-2050) - (1971-2000) ####
-  plot_sd_diff2021_SMIJul <-
-    ggplot(MeteoMonth_df_tidy_summaries_diff2021_sf) +
-    geom_sf(aes(fill = SMI_Jul_Sd)) +
-    ggtitle( "SD: (2021-2050) - (1971-2000)")  + sc +
-    theme_bw()
-  plot_sd_diff2021_SMIJul
-  
-  plot_sd_diff_SMIJul <- grid.arrange(plot_sd_diff2021_SMIJul, plot_sd_diff2070_SMIJul, ncol=2, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
-  
-  # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/", "plot_sd_diff_SMIJul_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_diff_SMIJul, width=14, height=8)
-  
-  #######################################################################
-  #### Plot difference in Sd of climate periods of SMI in August #####
-  #####################################################################
-  
-  #### Define colorRamp for August SMI ####
-  summary(MeteoMonth_df_tidy_summaries_diff2070_sf$SMI_Aug_Sd)
-  summary(MeteoMonth_df_tidy_summaries_diff2021_sf$SMI_Aug_Sd)
-  
-  myPalette <- colorRampPalette((brewer.pal(11, "PRGn")))
-  sc <- scale_fill_gradientn("August SMI", colours = myPalette(100), limits=c(-0.25, 0.25))
-  
-  
-  #### Plot Difference of Sd (2070-2099) - (1971-2000) ####
-  plot_sd_diff2070_SMIAug <-
-    ggplot(MeteoMonth_df_tidy_summaries_diff2070_sf) +
-    geom_sf(aes(fill = SMI_Aug_Sd)) +
-    ggtitle("SD: (2070-2099) - (1971-2000)") + sc +
-    theme_bw()
-  plot_sd_diff2070_SMIAug
-  
-  #### Plot Difference of Sd (2021-2050) - (1971-2000) ####
-  plot_sd_diff2021_SMIAug <-
-    ggplot(MeteoMonth_df_tidy_summaries_diff2021_sf) +
-    geom_sf(aes(fill = SMI_Aug_Sd)) +
-    ggtitle("SD: (2021-2050) - (1971-2000)")  + sc +
-    theme_bw()
-  # plot_sd_diff2021_SMIAug
-  
-  plot_sd_diff_SMIAug <-grid.arrange(plot_sd_diff2021_SMIAug, plot_sd_diff2070_SMIAug, ncol=2, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
-  
-  # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/", "plot_sd_diff_SMIAug_",namelist_models[[l]],".pdf", sep=""), plot=plot_sd_diff_SMIAug, width=14, height=8)
-  
-  
-  # ################################################################################################################################################################################################
-  # #### Make combined Plots of SDs ####
-  # ################################################################################################################################################################################################
-  # '- Combined Plots
-  # - TavJul, PreJul, SMIJun, SMIAug
-  # - TavJul, PreJul, SMIJun, SMIAug, Yield
-  # - TavJul, PreJul, SMIJul
-  # - TavJul, PreJul, SMIJul, Yield'
-  # 
-  # 'For the yield plots it is necessary to load plot_sd_diff...list via the BasePrediction_Plots Script. '
-  # 
-  # 
-  # #######################################################
-  # #### Sd plots for TavJul, PreJul, SMIJun, SMIAug ####
-  # 
-  # plot_sd_SMI_6_Jun_Aug <- grid.arrange(plot_sd_1970_TavJul , plot_sd_1970_PreJul,  plot_sd_1970_SMIJun, plot_sd_1970_SMIAug,
-  #                                       plot_sd_diff2021_TavJul, plot_sd_diff2021_PreJul, plot_sd_diff2021_SMIJun, plot_sd_diff2021_SMIAug,
-  #                                       plot_sd_diff2070_TavJul, plot_sd_diff2070_PreJul, plot_sd_diff2070_SMIJun, plot_sd_diff2070_SMIAug,
-  #                                       ncol=4, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
-  # # plot_sd_SMI_6_Jun_Aug
-  # # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_sd_SMI_6_Jun_Aug_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_SMI_6_Jun_Aug , width=28, height=24)
-  # 
-  # # ##############################################################
-  # # #### Sd plots for TavJul, PreJul, SMIJun, SMIAug, Yield ####
-  # # plot_sd_yield_SMI_6_Jun_Aug <- grid.arrange(plot_sd_1970_TavJul , plot_sd_1970_PreJul,  plot_sd_1970_SMIJun, plot_sd_1970_SMIAug,plot_sd_1971_list[[1]][[l]],
-  # #                                             plot_sd_diff2021_TavJul, plot_sd_diff2021_PreJul, plot_sd_diff2021_SMIJun, plot_sd_diff2021_SMIAug, plot_sd_diff2021_list[[1]][[l]],
-  # #                                             plot_sd_diff2070_TavJul, plot_sd_diff2070_PreJul, plot_sd_diff2070_SMIJun, plot_sd_diff2070_SMIAug, plot_sd_diff2070_list[[1]][[l]],
-  # #                                             ncol = 5, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=25)))
-  # # plot_sd_yield_SMI_6_Jun_Aug
-  # # 
-  # # # ggsave(paste("./figures/figures_exploratory/Proj/Combined/","plot_sd_yield_SMI_6_Jun_Aug_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_yield_SMI_6_Jun_Aug , width=35, height=24)
-  # # 
-  # ###############################################
-  # #### Sd plots for TavJul, PreJul, SMIJul ####
-  # plot_sd_SMI_6_Jul <- grid.arrange(plot_sd_1970_TavJul , plot_sd_1970_PreJul,  plot_sd_1970_SMIJul,
-  #                                   plot_sd_diff2021_TavJul, plot_sd_diff2021_PreJul, plot_sd_diff2021_SMIJul,
-  #                                   plot_sd_diff2070_TavJul, plot_sd_diff2070_PreJul, plot_sd_diff2070_SMIJul,
-  #                                   ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
-  # # plot_sd_SMI_6_Jul
-  # # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_sd_SMI_6_Jul_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_SMI_6_Jul , width=28, height=24)
-  # 
-  # # ######################################################
-  # # #### Sd plots for TavJul, PreJul, SMIJul, Yield ####
-  # # plot_sd_yield_SMI_6_Jul <- grid.arrange(plot_sd_1970_TavJul , plot_sd_1970_PreJul,  plot_sd_1970_SMIJul, plot_sd_1971_list[[2]][[l]],
-  # #                                         plot_sd_diff2021_TavJul, plot_sd_diff2021_PreJul, plot_sd_diff2021_SMIJul,  plot_sd_diff2021_list[[2]][[l]],
-  # #                                         plot_sd_diff2070_TavJul, plot_sd_diff2070_PreJul, plot_sd_diff2070_SMIJul, plot_sd_diff2070_list[[2]][[l]],
-  # #                                         ncol = 4, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=20)))
-  # # plot_sd_yield_SMI_6_Jul
-  # # 
-  # # # ggsave(paste("./figures/figures_exploratory/Proj/Combined/","plot_sd_yield_SMI_6_Jul_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_yield_SMI_6_Jul , width=28, height=24)
+#   ##############################################################################################################################################################################
+#   #### Plots of absolute values ####
+#   ##############################################################################################################################################################################
+#   '
+#   Plot of absolute values (Mean)  for each climate period 
+#   - Tav in July
+#   - Pre in July 
+#   - SMI in June
+#   - SMI in July
+#   - SMI in August
+#   
+#   '
+#   ###########################################################
+#   #### Plot Mean for each climate period of Tav in July ####
+#   #########################################################
+#   
+#   ## Define colorRamp ##
+#   str(MeteoMonth_df_tidy_summaries_sf_list,1)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[1]]$Tav_Jul_Mean)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[2]]$Tav_Jul_Mean)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[3]]$Tav_Jul_Mean)
+#   
+#   
+#   myPalette <- colorRampPalette((brewer.pal(9, "RdPu")))
+#   sc <- scale_fill_gradientn("July Temp.",colours = myPalette(100), limits=c(11, 24))
+#   
+#   ## Plot Mean: 1970 - 2000 - Tav July ##
+#   plot_mean_1970_TavJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[1]]) +
+#     geom_sf(aes(fill = Tav_Jul_Mean)) +
+#     ggtitle("Mean: 1970 - 2000") + sc +
+#     theme_bw()
+#   
+#   # plot_mean_1970_TavJul
+#   
+#   ## Plot Mean: 2021 - 2050 - Tav July ##
+#   plot_mean_2021_TavJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[2]]) +
+#     geom_sf(aes(fill = Tav_Jul_Mean)) +
+#     ggtitle("Mean: 2021 - 2050") + sc +
+#     theme_bw()
+#   
+#   # plot_mean_2021_TavJul
+#   
+#   ## Plot Mean: 2070 - 2099 - Tav July ##
+#   plot_mean_2070_TavJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[3]]) +
+#     geom_sf(aes(fill = Tav_Jul_Mean)) +
+#     ggtitle("Mean: 2070 - 2099") + sc +
+#     theme_bw()
+#   
+#   # plot_mean_2070_TavJul
+#   
+#   plot_mean_TavJul <- grid.arrange(plot_mean_1970_TavJul, plot_mean_2021_TavJul, plot_mean_2070_TavJul, ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+#   # plot_mean_TavJul
+#   
+#   # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/", "plot_mean_TavJul_",namelist_models[[l]],".pdf", sep=""), plot=plot_mean_TavJul, width=21, height=8)
+#   
+#   ###########################################################
+#   #### Plot Mean for each climate period of Pre in July ####
+#   #########################################################
+#   
+#   ## Define colorRamp ##
+#   str(MeteoMonth_df_tidy_summaries_sf_list,1)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[1]]$Pre_Jul_Mean)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[2]]$Pre_Jul_Mean)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[3]]$Pre_Jul_Mean)
+#   
+#   
+#   myPalette <- colorRampPalette((brewer.pal(9, "PuBu")))
+#   sc <- scale_fill_gradientn("July Prec.",colours = myPalette(100), limits=c(20, 220))
+#   
+#   ## Plot Mean: 1970 - 2000 - Tav July ##
+#   plot_mean_1970_PreJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[1]]) +
+#     geom_sf(aes(fill = Pre_Jul_Mean)) +
+#     ggtitle("Mean: 1970 - 2000") + sc +
+#     theme_bw()
+#   
+#   # plot_mean_1970_PreJul
+#   
+#   ## Plot Mean: 2021 - 2050 - Tav July ##
+#   plot_mean_2021_PreJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[2]]) +
+#     geom_sf(aes(fill = Pre_Jul_Mean)) +
+#     ggtitle("Mean: 2021 - 2050") + sc +
+#     theme_bw()
+#   
+#   # plot_mean_2021_PreJul
+#   
+#   ## Plot Mean: 2070 - 2099 - Tav July ##
+#   plot_mean_2070_PreJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[3]]) +
+#     geom_sf(aes(fill = Pre_Jul_Mean)) +
+#     ggtitle("Mean: 2070 - 2099") + sc +
+#     theme_bw()
+#   
+#   # plot_mean_2070_PreJul
+#   
+#   ## Combine all three plot
+#   plot_mean_PreJul <- grid.arrange(plot_mean_1970_PreJul , plot_mean_2021_PreJul , plot_mean_2070_PreJul , ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+#   # plot_mean_PreJul
+#   
+#   # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_mean_PreJul_", namelist_models[[l]],".pdf", sep=""), plot=plot_mean_PreJul , width=21, height=8)
+#   
+#   ###########################################################
+#   #### Plot Mean for each climate period of SMI in June ####
+#   #########################################################
+#   
+#   ## Define colorRamp ##
+#   str(MeteoMonth_df_tidy_summaries_sf_list,1)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[1]]$SMI_Jun_Mean)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[2]]$SMI_Jun_Mean)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[3]]$SMI_Jun_Mean)
+#   
+#   myPalette <- colorRampPalette((brewer.pal(9, "YlGnBu")))
+#   sc <- scale_fill_gradientn("June SMI",colours = myPalette(100), limits=c(0.3, 0.7))
+#   
+#   ## Plot Mean: 1970 - 2000 - Tav July ##
+#   plot_mean_1970_SMIJun <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[1]]) +
+#     geom_sf(aes(fill = SMI_Jun_Mean)) +
+#     ggtitle("Mean: 1970 - 2000") + sc +
+#     theme_bw()
+#   
+#   # plot_mean_1970_SMIJun
+#   
+#   ## Plot Mean: 2021 - 2050 - Tav July ##
+#   plot_mean_2021_SMIJun <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[2]]) +
+#     geom_sf(aes(fill = SMI_Jun_Mean)) +
+#     ggtitle("Mean: 2021 - 2050") + sc +
+#     theme_bw()
+#   
+#   # plot_mean_2021_SMIJun
+#   
+#   ## Plot Mean: 2070 - 2099 - Tav July ##
+#   plot_mean_2070_SMIJun <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[3]]) +
+#     geom_sf(aes(fill = SMI_Jun_Mean)) +
+#     ggtitle("Mean: 2070 - 2099") + sc +
+#     theme_bw()
+#   
+#   # plot_mean_2070_SMIJun
+#   
+#   
+#   ## Combine all three plot
+#   plot_mean_SMIJun <- grid.arrange(plot_mean_1970_SMIJun , plot_mean_2021_SMIJun , plot_mean_2070_SMIJun , ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+#   # plot_mean_SMIJun
+#   
+#   # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_mean_SMIJun_", namelist_models[[l]],".pdf", sep=""), plot=plot_mean_SMIJun , width=21, height=8)
+#   
+#   ###########################################################
+#   #### Plot Mean for each climate period of SMI in July ####
+#   #########################################################
+#   
+#   ## Define colorRamp ##
+#   str(MeteoMonth_df_tidy_summaries_sf_list,1)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[1]]$SMI_Jul_Mean)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[2]]$SMI_Jul_Mean)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[3]]$SMI_Jul_Mean)
+#   
+#   myPalette <- colorRampPalette((brewer.pal(9, "YlGnBu")))
+#   sc <- scale_fill_gradientn("July SMI",colours = myPalette(100), limits=c(0.3, 0.7))
+#   
+#   ## Plot Mean: 1970 - 2000 - Tav July ##
+#   plot_mean_1970_SMIJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[1]]) +
+#     geom_sf(aes(fill = SMI_Jul_Mean)) +
+#     ggtitle("Mean: 1970 - 2000") + sc +
+#     theme_bw()
+#   
+#   # plot_mean_1970_SMIJul
+#   
+#   ## Plot Mean: 2021 - 2050 - Tav July ##
+#   plot_mean_2021_SMIJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[2]]) +
+#     geom_sf(aes(fill = SMI_Jul_Mean)) +
+#     ggtitle("Mean: 2021 - 2050") + sc +
+#     theme_bw()
+#   
+#   # plot_mean_2021_SMIJul
+#   
+#   ## Plot Mean: 2070 - 2099 - Tav July ##
+#   plot_mean_2070_SMIJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[3]]) +
+#     geom_sf(aes(fill = SMI_Jul_Mean)) +
+#     ggtitle("Mean: 2070 - 2099") + sc +
+#     theme_bw()
+#   
+#   # plot_mean_2070_SMIJul
+#   
+#   
+#   ## Combine all three plot
+#   plot_mean_SMIJul <- grid.arrange(plot_mean_1970_SMIJul , plot_mean_2021_SMIJul , plot_mean_2070_SMIJul , ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+#   # plot_mean_SMIJul
+#   
+#   # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_mean_SMIJul_", namelist_models[[l]],".pdf", sep=""), plot=plot_mean_SMIJul , width=21, height=8)
+#   
+#   
+#   #############################################################
+#   #### Plot Mean for each climate period of SMI in August ####
+#   ###########################################################
+#   
+#   ## Define colorRamp ##
+#   str(MeteoMonth_df_tidy_summaries_sf_list,1)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[1]]$SMI_Aug_Mean)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[2]]$SMI_Aug_Mean)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[3]]$SMI_Aug_Mean)
+#   
+#   myPalette <- colorRampPalette((brewer.pal(9, "YlGnBu")))
+#   sc <- scale_fill_gradientn("August SMI",colours = myPalette(100), limits=c(0.3, 0.7))
+#   
+#   ## Plot Mean: 1970 - 2000 - Tav July ##
+#   plot_mean_1970_SMIAug <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[1]]) +
+#     geom_sf(aes(fill = SMI_Aug_Mean)) +
+#     ggtitle("Mean: 1970 - 2000") + sc +
+#     theme_bw()
+#   
+#   # plot_mean_1970_SMIAug
+#   
+#   ## Plot Mean: 2021 - 2050 - Tav July ##
+#   plot_mean_2021_SMIAug <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[2]]) +
+#     geom_sf(aes(fill = SMI_Aug_Mean)) +
+#     ggtitle("Mean: 2021 - 2050") + sc +
+#     theme_bw()
+#   
+#   # plot_mean_2021_SMIAug
+#   
+#   ## Plot Mean: 2070 - 2099 - Tav July ##
+#   plot_mean_2070_SMIAug <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[3]]) +
+#     geom_sf(aes(fill = SMI_Aug_Mean)) +
+#     ggtitle("Mean: 2070 - 2099") + sc +
+#     theme_bw()
+#   
+#   # plot_mean_2070_SMIAug
+#   
+#   
+#   ## Combine all three plot
+#   plot_mean_SMIAug <- grid.arrange(plot_mean_1970_SMIAug , plot_mean_2021_SMIAug , plot_mean_2070_SMIAug , ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+#   # plot_mean_SMIAug
+#   
+#   # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_mean_SMIAug_", namelist_models[[l]],".pdf", sep=""), plot=plot_mean_SMIAug , width=21, height=8)
+#   
+#   # ################################################################################################################################################################################################
+#   # #### Make combined Plots of Means ####
+#   # ################################################################################################################################################################################################
+#   # ' For the yield plots it is necessary to load plot_mean_diff...list via the BasePrediction_Plots Script. '
+#   # 
+#   # 
+#   # 'Combined Plots
+#   # - TavJul, PreJul, SMIJun, SMIAug
+#   # - TavJul, PreJul, SMIJun, SMIAug, Yield
+#   # - TavJul, PreJul, SMIJul
+#   # - TavJul, PreJul, SMIJul, Yield'
+#   # 
+#   # 'For the yield plots it is necessary to load plot_sd_diff...list via the BasePrediction_Plots Script. '
+#   # 
+#   # #######################################################
+#   # #### Mean plots for TavJul, PreJul, SMIJun, SMIAug ####
+#   # plot_mean_SMI_6_Jun_Aug <- grid.arrange(plot_mean_1970_TavJul , plot_mean_1970_PreJul,  plot_mean_1970_SMIJun, plot_mean_1970_SMIAug,
+#   #                                         plot_mean_diff2021_TavJul, plot_mean_diff2021_PreJul, plot_mean_diff2021_SMIJun, plot_mean_diff2021_SMIAug,
+#   #                                         plot_mean_diff2070_TavJul, plot_mean_diff2070_PreJul, plot_mean_diff2070_SMIJun, plot_mean_diff2070_SMIAug,
+#   #                                         ncol=4, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+#   # plot_mean_SMI_6_Jun_Aug
+#   # # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_mean_SMI_6_Jun_Aug_", namelist_models[[l]],".pdf", sep=""), plot=plot_mean_SMI_6_Jun_Aug , width=28, height=24)
+#   # 
+#   # # ##############################################################
+#   # # #### Mean plots for TavJul, PreJul, SMIJun, SMIAug, Yield ####
+#   # # plot_mean_yield_SMI_6_Jun_Aug <- grid.arrange(plot_mean_1970_TavJul , plot_mean_1970_PreJul,  plot_mean_1970_SMIJun, plot_mean_1970_SMIAug,plot_mean_1971_list[[1]][[l]],
+#   # #                                               plot_mean_diff2021_TavJul, plot_mean_diff2021_PreJul, plot_mean_diff2021_SMIJun, plot_mean_diff2021_SMIAug, plot_mean_diff2021_list[[1]][[l]],
+#   # #                                               plot_mean_diff2070_TavJul, plot_mean_diff2070_PreJul, plot_mean_diff2070_SMIJun, plot_mean_diff2070_SMIAug, plot_mean_diff2070_list[[1]][[l]],
+#   # #                                               ncol = 5, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=25)))
+#   # # plot_mean_yield_SMI_6_Jun_Aug
+#   # # 
+#   # # # ggsave(paste("./figures/figures_exploratory/Proj/Combined/","plot_mean_yield_SMI_6_Jun_Aug_", namelist_models[[l]],".pdf", sep=""), plot=plot_mean_yield_SMI_6_Jun_Aug , width=35, height=24)
+#   # # 
+#   # ###############################################
+#   # #### Mean plots for TavJul, PreJul, SMIJul ####
+#   # plot_mean_SMI_6_Jul <- grid.arrange(plot_mean_1970_TavJul , plot_mean_1970_PreJul,  plot_mean_1970_SMIJul,
+#   #                                     plot_mean_diff2021_TavJul, plot_mean_diff2021_PreJul, plot_mean_diff2021_SMIJul,
+#   #                                     plot_mean_diff2070_TavJul, plot_mean_diff2070_PreJul, plot_mean_diff2070_SMIJul,
+#   #                                     ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+#   # plot_mean_SMI_6_Jul
+#   # # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_mean_SMI_6_Jul_", namelist_models[[l]],".pdf", sep=""), plot=plot_mean_SMI_6_Jul , width=28, height=24)
+#   # 
+#   # # ######################################################
+#   # # #### Mean plots for TavJul, PreJul, SMIJul, Yield ####
+#   # # plot_mean_yield_SMI_6_Jul <- grid.arrange(plot_mean_1970_TavJul , plot_mean_1970_PreJul,  plot_mean_1970_SMIJul, plot_mean_1971_list[[2]][[l]],
+#   # #                                           plot_mean_diff2021_TavJul, plot_mean_diff2021_PreJul, plot_mean_diff2021_SMIJul,  plot_mean_diff2021_list[[2]][[l]],
+#   # #                                           plot_mean_diff2070_TavJul, plot_mean_diff2070_PreJul, plot_mean_diff2070_SMIJul, plot_mean_diff2070_list[[2]][[l]],
+#   # #                                           ncol = 4, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=20)))
+#   # # plot_mean_yield_SMI_6_Jul
+#   # # 
+#   # # # ggsave(paste("./figures/figures_exploratory/Proj/Combined/","plot_mean_yield_SMI_6_Jul_", namelist_models[[l]],".pdf", sep=""), plot=plot_mean_yield_SMI_6_Jul , width=28, height=24)
+#   # # 
+#   # # 
+#   # 
+#   ##############################################################################################################################################################################
+#   ##############################################################################################################################################################################
+#   #### Plots of SDs ####
+#   ##############################################################################################################################################################################
+#   '
+#   Plot of absolute values (SD)  for each climate period 
+#   - Tav in July
+#   - Pre in July 
+#   - SMI in June
+#   - SMI in July
+#   - SMI in August
+#   
+#   '
+#   #########################################################
+#   #### Plot SD for each climate period of Tav in July ####
+#   #######################################################
+#   
+#   ## Define colorRamp ##
+#   str(MeteoMonth_df_tidy_summaries_sf_list,1)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[1]]$Tav_Jul_Sd)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[2]]$Tav_Jul_Sd)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[3]]$Tav_Jul_Sd)
+#   
+#   
+#   myPalette <- colorRampPalette((brewer.pal(9, "RdPu")))
+#   sc <- scale_fill_gradientn("July Temp.", colours = myPalette(100), limits=c(0, 2.5))
+#   
+#   ## Plot Standard Deviation: 1970 - 2000 - Tav July ##
+#   plot_sd_1970_TavJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[1]]) +
+#     geom_sf(aes(fill = Tav_Jul_Sd)) +
+#     ggtitle("SD: 1970 - 2000") + sc +
+#     theme_bw()
+#   
+#   plot_sd_1970_TavJul
+#   
+#   ## Plot Standard Deviation: 2021 - 2050 - Tav July ##
+#   plot_sd_2021_TavJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[2]]) +
+#     geom_sf(aes(fill = Tav_Jul_Sd)) +
+#     ggtitle("SD: 2021 - 2050") + sc +
+#     theme_bw()
+#   
+#   plot_sd_2021_TavJul
+#   
+#   ## Plot Standard Deviation: 2070 - 2099 - Tav July ##
+#   plot_sd_2070_TavJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[3]]) +
+#     geom_sf(aes(fill = Tav_Jul_Sd)) +
+#     ggtitle("SD: 2070 - 2099") + sc +
+#     theme_bw()
+#   
+#   plot_sd_2070_TavJul
+#   
+#   plot_sd_TavJul <- grid.arrange(plot_sd_1970_TavJul, plot_sd_2021_TavJul, plot_sd_2070_TavJul, ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+#   plot_sd_TavJul
+#   
+#   # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_sd_TavJul_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_TavJul, width=21, height=8)
+#   
+#   #########################################################
+#   #### Plot SD for each climate period of Pre in July ####
+#   #######################################################
+#   
+#   ## Define colorRamp ##
+#   str(MeteoMonth_df_tidy_summaries_sf_list,1)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[1]]$Pre_Jul_Sd)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[2]]$Pre_Jul_Sd)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[3]]$Pre_Jul_Sd)
+#   
+#   
+#   myPalette <- colorRampPalette((brewer.pal(9, "PuBu")))
+#   sc <- scale_fill_gradientn("July Prec.",colours = myPalette(100), limits=c(0, 100))
+#   
+#   ## Plot Standard Deviation: 1970 - 2000 - Tav July ##
+#   plot_sd_1970_PreJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[1]]) +
+#     geom_sf(aes(fill = Pre_Jul_Sd)) +
+#     ggtitle("SD: 1970 - 2000") + sc +
+#     theme_bw()
+#   
+#   plot_sd_1970_PreJul
+#   
+#   ## Plot Standard Deviation: 2021 - 2050 - Tav July ##
+#   plot_sd_2021_PreJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[2]]) +
+#     geom_sf(aes(fill = Pre_Jul_Sd)) +
+#     ggtitle("SD: 2021 - 2050") + sc +
+#     theme_bw()
+#   
+#   plot_sd_2021_PreJul
+#   
+#   ## Plot Standard Deviation: 2070 - 2099 - Tav July ##
+#   plot_sd_2070_PreJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[3]]) +
+#     geom_sf(aes(fill = Pre_Jul_Sd)) +
+#     ggtitle("SD: 2070 - 2099") + sc +
+#     theme_bw()
+#   
+#   plot_sd_2070_PreJul
+#   
+#   ## Combine all three plot
+#   plot_sd_PreJul <- grid.arrange(plot_sd_1970_PreJul , plot_sd_2021_PreJul , plot_sd_2070_PreJul , ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+#   plot_sd_PreJul
+#   
+#   # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_sd_PreJul_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_PreJul , width=21, height=8)
+#   
+#   
+#   ###########################################################
+#   #### Plot Sd for each climate period of SMI in June ####
+#   #########################################################
+#   
+#   ## Define colorRamp ##
+#   str(MeteoMonth_df_tidy_summaries_sf_list,1)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[1]]$SMI_Jun_Sd)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[2]]$SMI_Jun_Sd)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[3]]$SMI_Jun_Sd)
+#   
+#   
+#   myPalette <- colorRampPalette((brewer.pal(9, "GnBu")))
+#   sc <- scale_fill_gradientn("June SMI", colours = myPalette(100), limits=c(0.1, 0.4))
+#   
+#   ## Plot SD: 1970 - 2000 - Tav July ##
+#   plot_sd_1970_SMIJun <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[1]]) +
+#     geom_sf(aes(fill = SMI_Jun_Sd)) +
+#     ggtitle("SD: 1970 - 2000") + sc +
+#     theme_bw()
+#   
+#   plot_sd_1970_SMIJun
+#   
+#   ## Plot SD: 2021 - 2050 - Tav July ##
+#   plot_sd_2021_SMIJun <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[2]]) +
+#     geom_sf(aes(fill = SMI_Jun_Sd)) +
+#     ggtitle("SD: 2021 - 2050") + sc +
+#     theme_bw()
+#   
+#   plot_sd_2021_SMIJun
+#   
+#   ## Plot SD: 2070 - 2099 - Tav July ##
+#   plot_sd_2070_SMIJun <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[3]]) +
+#     geom_sf(aes(fill = SMI_Jun_Sd)) +
+#     ggtitle("SD: 2070 - 2099") + sc +
+#     theme_bw()
+#   
+#   plot_sd_2070_SMIJun
+#   
+#   
+#   ## Combine all three plot
+#   plot_sd_SMIJun <- grid.arrange(plot_sd_1970_SMIJun , plot_sd_2021_SMIJun , plot_sd_2070_SMIJun , ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+#   plot_sd_SMIJun
+#   
+#   # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_sd_SMIJun_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_SMIJun , width=21, height=8)
+#   
+#   ###########################################################
+#   #### Plot Sd for each climate period of SMI in July ####
+#   #########################################################
+#   
+#   ## Define colorRamp ##
+#   str(MeteoMonth_df_tidy_summaries_sf_list,1)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[1]]$SMI_Jul_Sd)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[2]]$SMI_Jul_Sd)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[3]]$SMI_Jul_Sd)
+#   
+#   
+#   myPalette <- colorRampPalette((brewer.pal(9, "GnBu")))
+#   sc <- scale_fill_gradientn("July SMI", colours = myPalette(100), limits=c(0.1, 0.4))
+#   
+#   ## Plot SD: 1970 - 2000 - Tav July ##
+#   plot_sd_1970_SMIJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[1]]) +
+#     geom_sf(aes(fill = SMI_Jul_Sd)) +
+#     ggtitle("SD: 1970 - 2000") + sc +
+#     theme_bw()
+#   
+#   plot_sd_1970_SMIJul
+#   
+#   ## Plot SD: 2021 - 2050 - Tav July ##
+#   plot_sd_2021_SMIJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[2]]) +
+#     geom_sf(aes(fill = SMI_Jul_Sd)) +
+#     ggtitle("SD: 2021 - 2050") + sc +
+#     theme_bw()
+#   
+#   plot_sd_2021_SMIJul
+#   
+#   ## Plot SD: 2070 - 2099 - Tav July ##
+#   plot_sd_2070_SMIJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[3]]) +
+#     geom_sf(aes(fill = SMI_Jul_Sd)) +
+#     ggtitle("SD: 2070 - 2099") + sc +
+#     theme_bw()
+#   
+#   plot_sd_2070_SMIJul
+#   
+#   
+#   ## Combine all three plot
+#   plot_sd_SMIJul <- grid.arrange(plot_sd_1970_SMIJul , plot_sd_2021_SMIJul , plot_sd_2070_SMIJul , ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+#   plot_sd_SMIJul
+#   
+#   # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_sd_SMIJul_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_SMIJul , width=21, height=8)
+#   
+#   #############################################################
+#   #### Plot Sd for each climate period of SMI in August ####
+#   ###########################################################
+#   
+#   ## Define colorRamp ##
+#   str(MeteoMonth_df_tidy_summaries_sf_list,1)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[1]]$SMI_Aug_Sd)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[2]]$SMI_Aug_Sd)
+#   summary(MeteoMonth_df_tidy_summaries_sf_list [[3]]$SMI_Aug_Sd)
+#   
+#   
+#   myPalette <- colorRampPalette((brewer.pal(9, "GnBu")))
+#   sc <- scale_fill_gradientn(colours = myPalette(100), limits=c(0.1, 0.4))
+#   
+#   ## Plot SD: 1970 - 2000 - Tav July ##
+#   plot_sd_1970_SMIAug <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[1]]) +
+#     geom_sf(aes(fill = SMI_Aug_Sd)) +
+#     ggtitle("SD: 1970 - 2000") + sc +
+#     theme_bw()
+#   
+#   plot_sd_1970_SMIAug
+#   
+#   ## Plot SD: 2021 - 2050 - Tav July ##
+#   plot_sd_2021_SMIAug <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[2]]) +
+#     geom_sf(aes(fill = SMI_Aug_Sd)) +
+#     ggtitle("SD: 2021 - 2050") + sc +
+#     theme_bw()
+#   
+#   plot_sd_2021_SMIAug
+#   
+#   ## Plot SD: 2070 - 2099 - Tav July ##
+#   plot_sd_2070_SMIAug <-
+#     ggplot(MeteoMonth_df_tidy_summaries_sf_list [[3]]) +
+#     geom_sf(aes(fill = SMI_Aug_Sd)) +
+#     ggtitle("SD: 2070 - 2099") + sc +
+#     theme_bw()
+#   
+#   plot_sd_2070_SMIAug
+#   
+#   
+#   ## Combine all three plot
+#   plot_sd_SMIAug <- grid.arrange(plot_sd_1970_SMIAug , plot_sd_2021_SMIAug , plot_sd_2070_SMIAug , ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+#   plot_sd_SMIAug
+#   
+#   # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_sd_SMIAug_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_SMIAug , width=21, height=8)
+#   
+#   
+#   ##############################################################################################################################################################################
+#   #### Plot Differences in SD ####
+#   ##############################################################################################################################################################################
+#   ' Plots of Difference in SD , climate periods (2021-2050, 2070-2099), compared to reference period (1971-2000)
+#   - Tav in July
+#   - Pre in July
+#   - SMI in June
+#   - SMI in July
+#   - SMI in August
+#   '
+#   #####################################################################
+#   #### Plot difference in Sd of climate periods of Tav in July #####
+#   ###################################################################
+#   
+#   #### Define colorRamp for July Temperature ####
+#   summary(MeteoMonth_df_tidy_summaries_diff2070_sf$Tav_Jul_Sd)
+#   summary(MeteoMonth_df_tidy_summaries_diff2021_sf$Tav_Jul_Sd)
+#   
+#   myPalette <- colorRampPalette((brewer.pal(9, "PRGn")))
+#   sc <- scale_fill_gradientn("July Temp.", colours = myPalette(100), limits=c(-0.7, 0.7))
+#   
+#   #### Plot Sd of Sd (2070-2099) - (1971-2000) ####
+#   plot_sd_diff2070_TavJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_diff2070_sf) +
+#     geom_sf(aes(fill = Tav_Jul_Sd)) +
+#     ggtitle("SD: (2070-2099) - (1971-2000) ") + sc +
+#     theme_bw()
+#   plot_sd_diff2070_TavJul
+#   
+#   #### Plot Sdof Sd (2021-2050) - (1971-2000) ####
+#   plot_sd_diff2021_TavJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_diff2021_sf) +
+#     geom_sf(aes(fill = Tav_Jul_Sd)) +
+#     ggtitle("SD: (2021-2050) - (1971-2000)")  + sc +
+#     theme_bw()
+#   plot_sd_diff2021_TavJul
+#   
+#   plot_sd_diff_TavJul <-grid.arrange(plot_sd_diff2021_TavJul, plot_sd_diff2070_TavJul, ncol=2, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+#   plot_sd_diff_TavJul
+#   
+#   # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_sd_diff_TavJul_", namelist_models[[l]], ".pdf", sep=""), plot=plot_sd_diff_TavJul, "pdf",width=14, height=8)
+#   
+#   
+#   
+#   #####################################################################
+#   #### Plot difference in Sd of climate periods of Pre in July #####
+#   ###################################################################
+#   
+#   #### Define colorRamp for July Temperature ####
+#   summary(MeteoMonth_df_tidy_summaries_diff2070_sf$Pre_Jul_Sd)
+#   summary(MeteoMonth_df_tidy_summaries_diff2021_sf$Pre_Jul_Sd)
+#   
+#   myPalette <- colorRampPalette((brewer.pal(11, "PRGn")))
+#   sc <- scale_fill_gradientn("July Prec.",colours = myPalette(100), limits=c(-25, 25))
+#   
+#   #### Plot Difference of Sd (2070-2099) - (1971-2000) ####
+#   plot_sd_diff2070_PreJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_diff2070_sf) +
+#     geom_sf(aes(fill = Pre_Jul_Sd)) +
+#     ggtitle("SD: (2070-2099) - (1971-2000) ") + sc +
+#     theme_bw()
+#   plot_sd_diff2070_PreJul
+#   
+#   #### Plot Difference of Sd (2021-2050) - (1971-2000) ####
+#   plot_sd_diff2021_PreJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_diff2021_sf) +
+#     geom_sf(aes(fill = Pre_Jul_Sd)) +
+#     ggtitle("SD: (2021-2050) - (1971-2000)")  + sc +
+#     theme_bw()
+#   plot_sd_diff2021_PreJul
+#   
+#   plot_sd_diff_PreJul <-grid.arrange(plot_sd_diff2021_PreJul, plot_sd_diff2070_PreJul, ncol=2, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+#   
+#   # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_sd_diff_PreJul_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_diff_PreJul, width=14, height=8)
+#   
+#   
+#   #####################################################################
+#   #### Plot difference in Sd of climate periods of SMI in June #####
+#   ###################################################################
+#   
+#   #### Define colorRamp for June SMI ####
+#   summary(MeteoMonth_df_tidy_summaries_diff2070_sf$SMI_Jun_Sd)
+#   summary(MeteoMonth_df_tidy_summaries_diff2021_sf$SMI_Jun_Sd)
+#   
+#   myPalette <- colorRampPalette((brewer.pal(11, "PRGn")))
+#   sc <- scale_fill_gradientn("June SMI", colours = myPalette(100), limits=c(-0.25, 0.25))
+#   
+#   #### Plot Difference of Sd (2070-2099) - (1971-2000) ####
+#   plot_sd_diff2070_SMIJun <-
+#     ggplot(MeteoMonth_df_tidy_summaries_diff2070_sf) +
+#     geom_sf(aes(fill = SMI_Jun_Sd)) +
+#     ggtitle( "SD: (2070-2099) - (1971-2000)") + sc +
+#     theme_bw()
+#   plot_sd_diff2070_SMIJun
+#   
+#   #### Plot Difference of Sd (2021-2050) - (1971-2000) ####
+#   plot_sd_diff2021_SMIJun <-
+#     ggplot(MeteoMonth_df_tidy_summaries_diff2021_sf) +
+#     geom_sf(aes(fill = SMI_Jun_Sd)) +
+#     ggtitle( "SD: (2021-2050) - (1971-2000)")  + sc +
+#     theme_bw()
+#   plot_sd_diff2021_SMIJun
+#   
+#   plot_sd_diff_SMIJun <- grid.arrange(plot_sd_diff2021_SMIJun, plot_sd_diff2070_SMIJun, ncol=2, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+#   
+#   # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/", "plot_sd_diff_SMIJun_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_diff_SMIJun, width=14, height=8)
+#   
+#   ###################################################################
+#   #### Plot difference in Sd of climate periods of SMI in July #####
+#   #################################################################
+#   
+#   #### Define colorRamp for July SMI ####
+#   summary(MeteoMonth_df_tidy_summaries_diff2070_sf$SMI_Jul_Sd)
+#   summary(MeteoMonth_df_tidy_summaries_diff2021_sf$SMI_Jul_Sd)
+#   
+#   myPalette <- colorRampPalette((brewer.pal(11, "PRGn")))
+#   sc <- scale_fill_gradientn("July SMI", colours = myPalette(100), limits=c(-0.25, 0.25))
+#   
+#   #### Plot Difference of Sd (2070-2099) - (1971-2000) ####
+#   plot_sd_diff2070_SMIJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_diff2070_sf) +
+#     geom_sf(aes(fill = SMI_Jul_Sd)) +
+#     ggtitle( "SD: (2070-2099) - (1971-2000)") + sc +
+#     theme_bw()
+#   plot_sd_diff2070_SMIJul
+#   
+#   #### Plot Difference of Sd (2021-2050) - (1971-2000) ####
+#   plot_sd_diff2021_SMIJul <-
+#     ggplot(MeteoMonth_df_tidy_summaries_diff2021_sf) +
+#     geom_sf(aes(fill = SMI_Jul_Sd)) +
+#     ggtitle( "SD: (2021-2050) - (1971-2000)")  + sc +
+#     theme_bw()
+#   plot_sd_diff2021_SMIJul
+#   
+#   plot_sd_diff_SMIJul <- grid.arrange(plot_sd_diff2021_SMIJul, plot_sd_diff2070_SMIJul, ncol=2, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+#   
+#   # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/", "plot_sd_diff_SMIJul_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_diff_SMIJul, width=14, height=8)
+#   
+#   #######################################################################
+#   #### Plot difference in Sd of climate periods of SMI in August #####
+#   #####################################################################
+#   
+#   #### Define colorRamp for August SMI ####
+#   summary(MeteoMonth_df_tidy_summaries_diff2070_sf$SMI_Aug_Sd)
+#   summary(MeteoMonth_df_tidy_summaries_diff2021_sf$SMI_Aug_Sd)
+#   
+#   myPalette <- colorRampPalette((brewer.pal(11, "PRGn")))
+#   sc <- scale_fill_gradientn("August SMI", colours = myPalette(100), limits=c(-0.25, 0.25))
+#   
+#   
+#   #### Plot Difference of Sd (2070-2099) - (1971-2000) ####
+#   plot_sd_diff2070_SMIAug <-
+#     ggplot(MeteoMonth_df_tidy_summaries_diff2070_sf) +
+#     geom_sf(aes(fill = SMI_Aug_Sd)) +
+#     ggtitle("SD: (2070-2099) - (1971-2000)") + sc +
+#     theme_bw()
+#   plot_sd_diff2070_SMIAug
+#   
+#   #### Plot Difference of Sd (2021-2050) - (1971-2000) ####
+#   plot_sd_diff2021_SMIAug <-
+#     ggplot(MeteoMonth_df_tidy_summaries_diff2021_sf) +
+#     geom_sf(aes(fill = SMI_Aug_Sd)) +
+#     ggtitle("SD: (2021-2050) - (1971-2000)")  + sc +
+#     theme_bw()
+#   # plot_sd_diff2021_SMIAug
+#   
+#   plot_sd_diff_SMIAug <-grid.arrange(plot_sd_diff2021_SMIAug, plot_sd_diff2070_SMIAug, ncol=2, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+#   
+#   # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/", "plot_sd_diff_SMIAug_",namelist_models[[l]],".pdf", sep=""), plot=plot_sd_diff_SMIAug, width=14, height=8)
+#   
+#   
+#   # ################################################################################################################################################################################################
+#   # #### Make combined Plots of SDs ####
+#   # ################################################################################################################################################################################################
+#   # '- Combined Plots
+#   # - TavJul, PreJul, SMIJun, SMIAug
+#   # - TavJul, PreJul, SMIJun, SMIAug, Yield
+#   # - TavJul, PreJul, SMIJul
+#   # - TavJul, PreJul, SMIJul, Yield'
+#   # 
+#   # 'For the yield plots it is necessary to load plot_sd_diff...list via the BasePrediction_Plots Script. '
+#   # 
+#   # 
+#   # #######################################################
+#   # #### Sd plots for TavJul, PreJul, SMIJun, SMIAug ####
+#   # 
+#   # plot_sd_SMI_6_Jun_Aug <- grid.arrange(plot_sd_1970_TavJul , plot_sd_1970_PreJul,  plot_sd_1970_SMIJun, plot_sd_1970_SMIAug,
+#   #                                       plot_sd_diff2021_TavJul, plot_sd_diff2021_PreJul, plot_sd_diff2021_SMIJun, plot_sd_diff2021_SMIAug,
+#   #                                       plot_sd_diff2070_TavJul, plot_sd_diff2070_PreJul, plot_sd_diff2070_SMIJun, plot_sd_diff2070_SMIAug,
+#   #                                       ncol=4, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+#   # # plot_sd_SMI_6_Jun_Aug
+#   # # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_sd_SMI_6_Jun_Aug_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_SMI_6_Jun_Aug , width=28, height=24)
+#   # 
+#   # # ##############################################################
+#   # # #### Sd plots for TavJul, PreJul, SMIJun, SMIAug, Yield ####
+#   # # plot_sd_yield_SMI_6_Jun_Aug <- grid.arrange(plot_sd_1970_TavJul , plot_sd_1970_PreJul,  plot_sd_1970_SMIJun, plot_sd_1970_SMIAug,plot_sd_1971_list[[1]][[l]],
+#   # #                                             plot_sd_diff2021_TavJul, plot_sd_diff2021_PreJul, plot_sd_diff2021_SMIJun, plot_sd_diff2021_SMIAug, plot_sd_diff2021_list[[1]][[l]],
+#   # #                                             plot_sd_diff2070_TavJul, plot_sd_diff2070_PreJul, plot_sd_diff2070_SMIJun, plot_sd_diff2070_SMIAug, plot_sd_diff2070_list[[1]][[l]],
+#   # #                                             ncol = 5, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=25)))
+#   # # plot_sd_yield_SMI_6_Jun_Aug
+#   # # 
+#   # # # ggsave(paste("./figures/figures_exploratory/Proj/Combined/","plot_sd_yield_SMI_6_Jun_Aug_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_yield_SMI_6_Jun_Aug , width=35, height=24)
+#   # # 
+#   # ###############################################
+#   # #### Sd plots for TavJul, PreJul, SMIJul ####
+#   # plot_sd_SMI_6_Jul <- grid.arrange(plot_sd_1970_TavJul , plot_sd_1970_PreJul,  plot_sd_1970_SMIJul,
+#   #                                   plot_sd_diff2021_TavJul, plot_sd_diff2021_PreJul, plot_sd_diff2021_SMIJul,
+#   #                                   plot_sd_diff2070_TavJul, plot_sd_diff2070_PreJul, plot_sd_diff2070_SMIJul,
+#   #                                   ncol=3, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=30)))
+#   # # plot_sd_SMI_6_Jul
+#   # # ggsave(paste("./figures/figures_exploratory/Proj/MeteoVar/","plot_sd_SMI_6_Jul_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_SMI_6_Jul , width=28, height=24)
+#   # 
+#   # # ######################################################
+#   # # #### Sd plots for TavJul, PreJul, SMIJul, Yield ####
+#   # # plot_sd_yield_SMI_6_Jul <- grid.arrange(plot_sd_1970_TavJul , plot_sd_1970_PreJul,  plot_sd_1970_SMIJul, plot_sd_1971_list[[2]][[l]],
+#   # #                                         plot_sd_diff2021_TavJul, plot_sd_diff2021_PreJul, plot_sd_diff2021_SMIJul,  plot_sd_diff2021_list[[2]][[l]],
+#   # #                                         plot_sd_diff2070_TavJul, plot_sd_diff2070_PreJul, plot_sd_diff2070_SMIJul, plot_sd_diff2070_list[[2]][[l]],
+#   # #                                         ncol = 4, top=textGrob(paste(namelist_models[[l]]),gp=gpar(fontsize=20)))
+#   # # plot_sd_yield_SMI_6_Jul
+#   # # 
+#   # # # ggsave(paste("./figures/figures_exploratory/Proj/Combined/","plot_sd_yield_SMI_6_Jul_", namelist_models[[l]],".pdf", sep=""), plot=plot_sd_yield_SMI_6_Jul , width=28, height=24)
 }

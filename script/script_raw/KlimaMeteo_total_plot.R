@@ -90,7 +90,7 @@ vg2500_krs$RS
 
 ## Create List ##
 namelist_models <- c("MPI","DMI","KNMI","ICTP","SMHIRCA")
-# MeteoMonth_df_tidy <- list(DMI=data.frame(), ICTP=data.frame(), KNMI=data.frame(), MPI=data.frame(), SMHIRCA=data.frame())
+# MeteoMonth_df_tidy <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list())
 
 
 ##########################################################################################################

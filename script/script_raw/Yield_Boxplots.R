@@ -28,7 +28,6 @@ library(rgdal)
 library(raster)
 library(rasterVis)
 library(maptools)
-library(reshape)
 library(stringr)
 library(classInt)
 library(RColorBrewer)
@@ -61,7 +60,7 @@ vg2500_krs$RS
 
 ## Create List of models to loop trrough##
 namelist_models <- c("MPI","DMI","KNMI","ICTP","SMHIRCA")
-# PredictData_df_tidy <- list(DMI=data.frame(), ICTP=data.frame(), KNMI=data.frame(), MPI=data.frame(), SMHIRCA=data.frame())
+# PredictData_df_tidy <- list(MPI=data.frame(), DMI=data.frame(), KNMI=data.frame(), ICTP=data.frame(), SMHIRCA=data.frame())
 
 
 #### Generate list of start and end dates of climate periods ####
@@ -110,12 +109,12 @@ for (s in 1:length(modelListMatrixNames)){
         mutate(climate_period = dummy_list[[r]])
   }
     
-  View(PredictData_df_tidy_summaries_list[[1]])
+  # View(PredictData_df_tidy_summaries_list[[1]])
   dim(PredictData_df_tidy) # 195190 /262/5 = 149
   dim(PredictData_df_tidy_summaries_list[[1]]) # The change of the dimension makes sense 39300/262/5 = 30
   str(PredictData_df_tidy_summaries_list,2)
       
-  ## Loop to generate the mean and sd conditional the RCM and the administrative district
+  ## Loop to generate the mean and sd conditional on the RCM and the administrative district
   for (r in 1:3){
       PredictData_df_tidy_summaries_list[[r]]  <- 
         PredictData_df_tidy_summaries_list[[r]]  %>%
@@ -131,7 +130,7 @@ for (s in 1:length(modelListMatrixNames)){
   summary(DMI2070)
   summary(ICTP2070)
       
-  View(PredictData_df_tidy_summaries_list[[2]])
+  # View(PredictData_df_tidy_summaries_list[[2]])
   summary(PredictData_df_tidy_summaries_list[[2]])
   str(PredictData_df_tidy_summaries_list[[1]],1)
   str(PredictData_df_tidy_summaries_list[[2]],1)
@@ -142,7 +141,7 @@ for (s in 1:length(modelListMatrixNames)){
   PredictData_df_tidy_summaries_list[[r]]$Y_mean_ref <- PredictData_df_tidy_summaries_list[[1]]$Y_mean
   }
   str(PredictData_df_tidy_summaries_list[[1]],1)
-  View(PredictData_df_tidy_summaries_list[[3]])
+  # View(PredictData_df_tidy_summaries_list[[3]])
     
   #### Create difference between Y and Y_mean_ref -> YSubY_mean_ref and between Y_mean and Y_mean_ref -> Y_meanSubY_mean_ref ####
   for (r in 1:3){
@@ -150,7 +149,7 @@ for (s in 1:length(modelListMatrixNames)){
         PredictData_df_tidy_summaries_list[[r]]  %>%
         mutate( YSubY_mean_ref = Y - Y_mean_ref,  Y_meanSubY_mean_ref = Y_mean - Y_mean_ref)  
   }
-  View(PredictData_df_tidy_summaries_list[[2]])
+  # View(PredictData_df_tidy_summaries_list[[2]])
     
   #### Combine data.frame to one ####
   ## Large data.frame considering all three climate period

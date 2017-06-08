@@ -1,0 +1,232 @@
+#### Test for significant changes in the predicted yield values for the climate period ####
+'
+- Load the tidy data
+- Filter for climate models
+- Filter for the reference and climate periods
+- Make on data.frame including the observations for all three climate periods
+- Group by comIds and apply test to each cohort
+- Combine with spatial information
+
+'
+#### Input ####
+'
+Spatial Information: Shapefile of comdIDs ("vg2500_krs")
+BasePrediction.R: tidy.data.frames of yield and yield anomaly predictions based on different estimation models
+
+'
+
+###################
+## Load Packages ##
+library(plm)
+library(boot)
+library(gtools)
+library(lme4)
+library(lmtest)
+library(car)
+library(sp)
+library(rgdal)
+library(raster)
+library(rasterVis)
+library(maptools)
+library(stringr)
+library(classInt)
+library(RColorBrewer)
+library(stargazer)
+library(ggthemes)
+library(caret)   
+library(plyr)
+library(tidyr)
+library(gridExtra)
+library(cowplot)
+library(grid)
+library(tidyverse)
+library(sf)
+library(ggplot2) 
+library(Hmisc)
+####################################################################################################################################################################
+
+
+
+##############################
+#### Preparation for loop ####
+
+#### Laden der Shapes mit den Polygonen der Kreise und deren räumliche Zuordnung ####
+vg2500_krs <- read_sf("./../Proj1/data/data_spatial/", "vg2500_krs")
+str(vg2500_krs, 2)
+
+#### Change RS to five digits #####
+vg2500_krs$RS <- as.integer(str_sub(vg2500_krs$RS, 1,5))
+vg2500_krs$RS
+
+## Create List of models to loop trrough##
+namelist_models <- c("MPI","DMI","KNMI","ICTP","SMHIRCA")
+# PredictData_df_tidy <- list(MPI=data.frame(), DMI=data.frame(), KNMI=data.frame(), ICTP=data.frame(), SMHIRCA=data.frame())
+
+
+#### Generate list of start and end dates of climate periods ####
+'Those are necessary for the conditioning in filter'
+climateyears_list <- list(c(1971, 2021, 2070), c(2000, 2050, 2099))
+
+## Names used to store the figures
+modelListMatrixNames <- list("lm.fit_SMI_6_Jun_Aug_modelmatrix", "lm.fit_SMI_6_Jul_modelmatrix")
+# modelListMatrixNames <- list("lm.fit_SMI_6_Jun_Aug", "lm.fit_SMI_6_Jul")
+
+## Names used in figures
+modelListYieldNames <-list("Yield: SMI_6_Jun_Aug", "Yield: SMI_6_Jul")
+
+##########################################################################
+#### Loop through different models on which the predictions are based ####
+
+#### Start of loop through prediction models #####
+for (s in 1:length(modelListMatrixNames)){
+  
+  dir.create(paste("./figures/figures_exploratory/Proj/Boxplots/", modelListMatrixNames[[s]] ,sep=""), showWarnings = FALSE)
+  
+  
+  #### Load tidy data.frame of Yield and Yield_Anomaly Predictions  ####
+  ' one large data.frame also including a marker for the model'
+  PredictData_df_tidy <- read.csv(paste("./data/data_proj/output/", modelListMatrixNames[[s]],"/Yield_predict_complete_1951-2099_tidy.csv", sep="") )
+  str(PredictData_df_tidy) # 195190/149/5 = 262
+  
+  PredictData_df_tidy$X <- NULL
+
+  #############################################################################################
+  #### Generate list with data.frame container for each climate period: Summary Statistics ####
+  PredictData_df_tidy_test_list <- list(PredictData_df_tidy_test_1979 = data.frame(), PredictData_df_tidy_test_2021= data.frame(),
+                                             PredictData_df_tidy_test_2070 = data.frame())
+  
+  #### Loop to generate data.frame with Means and SDs of Y and Y_anomaly for the three different climate zones ####
+  ## Generate dummy for each climate period and create accordingly a data.frame for the subset of each climate period ##
+  dummy_list <- list("1971 - 2000", "2021-2050", "2070-2099")
+  
+  for ( r in 1:3){
+    PredictData_df_tidy_test_list[[r]]  <- 
+      PredictData_df_tidy  %>% 
+      filter(year >=  climateyears_list[[1]][r] & year <= climateyears_list[[2]][r]) %>% 
+      mutate(climate_period = dummy_list[[r]])
+  }
+  
+  # View(PredictData_df_tidy_test_list[[1]])
+  dim(PredictData_df_tidy) # 195190 /262/5 = 149
+  dim(PredictData_df_tidy_test_list[[1]]) # The change of the dimension makes sense 39300/262/5 = 30
+  str(PredictData_df_tidy_test_list,2)
+  
+  # ## Loop to generate the mean and sd conditional on the RCM and the administrative district
+  # for (r in 1:3){
+  #   PredictData_df_tidy_test_list[[r]]  <- 
+  #     PredictData_df_tidy_test_list[[r]]  %>%
+  #     group_by(model, comId) %>% 
+  #     mutate( Y_mean= mean(Y), Y_sd = sd(Y), Y_sum= sum(Y))  
+  # }
+  # 
+  # ## Check for correctness of grouping by model
+  # DMI2070 <-   PredictData_df_tidy_test_list[[3]]  %>%
+  #   filter(model == "DMI") 
+  # ICTP2070 <-   PredictData_df_tidy_test_list[[3]]  %>%
+  #   filter(model == "ICTP") 
+  # summary(DMI2070)
+  # summary(ICTP2070)
+  # 
+  # View(PredictData_df_tidy_test_list[[2]])
+  summary(PredictData_df_tidy_test_list[[2]])
+  str(PredictData_df_tidy_test_list[[1]],1)
+  str(PredictData_df_tidy_test_list[[2]],1)
+  str(PredictData_df_tidy_test_list[[3]],1)
+  
+  #### Rename y and y_anomaly of each climate period accordingly ####
+  names(PredictData_df_tidy_test_list[[1]]) <- c("model", "comId", "year",  "Y_1971", "Y_anomaly_1971", "climate_period")
+  names(PredictData_df_tidy_test_list[[2]]) <- c("model", "comId", "year",  "Y_2021", "Y_anomaly_2021", "climate_period")
+  names(PredictData_df_tidy_test_list[[3]]) <- c("model", "comId", "year",  "Y_2070", "Y_anomaly_2070", "climate_period")
+  
+  PredictData_df_tidy_test_list[[1]]$climate_period <- PredictData_df_tidy_test_list[[2]]$climate_period <- 
+    PredictData_df_tidy_test_list[[3]]$climate_period <- NULL
+  
+  PredictData_df_tidy_test_list[[1]]$year <- PredictData_df_tidy_test_list[[2]]$year <- 
+    PredictData_df_tidy_test_list[[3]]$year <- NULL
+  
+  #### Merge the data of the three climate periods ####
+  dim(PredictData_df_tidy_test_list[[1]])
+  dim(PredictData_df_tidy_test_list[[2]])
+  dim(PredictData_df_tidy_test_list[[3]])
+  
+  test_data <- cbind(PredictData_df_tidy_test_list[[1]], cbind(PredictData_df_tidy_test_list[[2]][,3:4], PredictData_df_tidy_test_list[[3]][,3:4]))
+  View( test_data )
+  dim( test_data )
+  str( test_data)
+  
+  #### Compare columns by WilcoxonText #####
+  test <- wilcox.test( test_data$Y_anomaly_1971,  test_data$Y_anomaly_2070)
+  test$p.value
+  
+  #### Group Data by comIds ####
+  test_data %>% 
+    group_by(model, comId) %>% 
+     summarise(wilcox.test( test_data$Y_anomaly_1971,  test_data$Y_anomaly_2070))
+    
+  
+  for (r in 1:3){
+    PredictData_df_tidy_test_list[[r]]$Y_mean_ref <- PredictData_df_tidy_test_list[[1]]$Y_mean
+  }
+  str(PredictData_df_tidy_test_list[[1]],1)
+  # View(PredictData_df_tidy_test_list[[3]])
+  
+  #### Create difference between Y and Y_mean_ref -> YSubY_mean_ref and between Y_mean and Y_mean_ref -> Y_meanSubY_mean_ref ####
+  for (r in 1:3){
+    PredictData_df_tidy_test_list[[r]]  <- 
+      PredictData_df_tidy_test_list[[r]]  %>%
+      mutate( YSubY_mean_ref = Y - Y_mean_ref,  Y_meanSubY_mean_ref = Y_mean - Y_mean_ref)  
+  }
+  # View(PredictData_df_tidy_test_list[[2]])
+  
+  #### Combine data.frame to one ####
+  ## Large data.frame considering all three climate period
+  PredictData_df_tidy_climate <- rbind(rbind(PredictData_df_tidy_test_list[[1]], PredictData_df_tidy_test_list[[2]]), PredictData_df_tidy_test_list[[3]])
+  ## Data.frame considering the climate periods starting 2021 and 2070
+  PredictData_df_tidy_climate20212070 <- rbind(PredictData_df_tidy_test_list[[2]], PredictData_df_tidy_test_list[[3]])
+  
+  #####################################
+  #### Make boxplot / violin plots #### 
+  
+  ## Define Data Summary Statistic used in ggplots
+  data_summary <- function(x) {
+    m <- mean(x)
+    ymin <- m-sd(x)*2
+    ymax <- m+sd(x)*2
+    return(c(y=m,ymin=ymin,ymax=ymax))
+  } # End of function
+  
+  #### Violin Plot for comparing the means - only considering climate period 2021 and 2070 ####
+  p20212070 <- ggplot(PredictData_df_tidy_climate20212070, aes(climate_period, Y_meanSubY_mean_ref ))
+  p20212070_plot <-  p20212070 + geom_hline(yintercept=0, color="gray", size=1) +
+    geom_violin(aes(fill = model), draw_quantiles = c(0.25, 0.5, 0.75), width=1, color="blue")  + facet_grid(. ~ model)  +
+    stat_summary(fun.data=data_summary, color="orange")   + theme_minimal(base_size = 14) +  theme(legend.position="none")  + scale_fill_brewer(palette="Greys")  +
+    ggtitle(paste(modelListMatrixNames[[s]])) + ylab("Mean(Y) of climate period - Mean(Y) of reference period (cond. on climate period and adm. distr.) ") + 
+    xlab("Climate Period") +
+    scale_y_continuous(limits=c(-70, 40))
+  ggsave(paste("./figures/figures_exploratory/Proj/Boxplots/", modelListMatrixNames[[s]],"/ViolinPlot_Means_202120170.pdf", sep="") , p20212070_plot, width=16, height=9) 
+  
+  
+  
+  #### Violin Plot for comparing the yield deviation from the reference period mean ####
+  p <- ggplot(PredictData_df_tidy_climate, aes(climate_period, YSubY_mean_ref ))
+  p_plot <-  p + geom_hline(yintercept=0, color="gray", size=1) +
+    geom_violin(aes(fill = model), draw_quantiles = c(0.25, 0.5, 0.75), width=1, color="blue")  + facet_grid(. ~ model)  +
+    stat_summary(fun.data=data_summary, color="orange")  +  theme_minimal(base_size = 14) +  theme(legend.position="none", axis.text.y = element_text(size = 15))  + scale_fill_brewer(palette="Greys")  +
+    ggtitle(paste(modelListMatrixNames[[s]])) + ylab("Y of climate period - Mean(Y) of reference period ") + 
+    xlab("Climate Period") +
+    scale_y_continuous(limits=c(-180, 370))
+  ggsave(paste("./figures/figures_exploratory/Proj/Boxplots/", modelListMatrixNames[[s]],"/ViolinPlot_Yield.pdf", sep="") , p_plot, width=16, height=9) 
+  
+  
+  #### Check whether test are comparable ####   
+  names(PredictData_df_tidy_test_list[[1]])
+  
+  PredictData_df_tidy_test_list[[2]] %>%
+    group_by(model) %>%
+    summarise(mean(Y), sd(Y)) 
+  ' Sample show, that the test are the same.'
+  
+  
+  
+}   # End of loop through climate models
+
