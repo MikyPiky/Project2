@@ -5,10 +5,11 @@
 ' - Prepare data.frame on yield and meteo vars for exploring models and fitting / train final model
     - Load yieldData_meteo -> filter for relevant data (siloMais, etc)
     - Generate Stepwise functions of SMI with six anomalies
-    - Remove comIds with at least one observations missing to avoid leverage issues
+    - Remove comIds with less than nine observations to avoid leverage issues (comparable to first paper - another cut would also delete the 
+      the important regions for silage maize production at Rheinebene)
     - Remove log trend of indepedent variable -> no trend observed, i.e. no deleting, but relevant to detect outliers
     - Issue with Outliers - Correct Typo in Data
-    - Change Variable Names: Prec -> Pre, Tavg -> Tav 
+    - Change Variable Names: Prec -> P, Tavg -> T 
   - Explore Models
       - many results, please go to section
   -  Explore differences on extimation procedure which use plm, demeaned data, or LSDV - in particular for nonlinearities 
@@ -84,14 +85,21 @@ Yield_Covariates <- read.csv("./data/data_processed/yieldData_meteo")
 Yield_Covariates$X <- NULL
 str(Yield_Covariates)
 
-length(unique(Yield_Covariates$comId))
-
 ####################################################
 #### Delete dependent Variables but silo Maize ####
-##################################################
 names <- c("winterWheat", "rye", "winterBarley", "summerBarley", "oats", "triticale", "potatoes", "sugarBeet", "winterRape")
 Yield_Covariates <- Yield_Covariates[,  !names(Yield_Covariates)%in%names]
 head(Yield_Covariates)
+
+################################################
+#### Load shape of administrative districts ####
+################################################
+vg2500_krs <- read_sf("./../Proj1/data/data_spatial/", "vg2500_krs")
+str(vg2500_krs, 2)
+
+#### Change RS to five digits #####
+vg2500_krs$RS <- as.integer(str_sub(vg2500_krs$RS, 1,5))
+vg2500_krs$RS
 
 
 ##########################################
@@ -129,28 +137,69 @@ table(Yield_Covariates$SMI_Aug6,Yield_Covariates$year  )
 ## First delete all observations with NAs ##
 Yield_Covariates <- na.omit(Yield_Covariates)
 length(unique(Yield_Covariates$comId)) # 365
+'45 comIds have no observation in general '
 
 ######################################################
-## Delete all comIds with less than 17 observations ##
-table(Yield_Covariates$comId)
-sum(table(Yield_Covariates$comId) < 17) # 103 comIds have missing independent data
-table(Yield_Covariates$comId) < 17 
+## Delete all comIds with less than 9 observations ##
+missing_distribution <- as.data.frame(table(Yield_Covariates$comId))
+# str(missing_distribution)
+# sum(table(Yield_Covariates$comId) < 9) # 103 comIds have missing independent data when only considering full data sets, 31 with a cutoff of nine
+# table(Yield_Covariates$comId) < 9 
+
+####################################################
+#### Make map of distribution of missing values ####
+missing_distribution_sf <- merge(vg2500_krs, missing_distribution, by.x="RS", by.y="Var1")
+# dim(missing_distribution_sf)
+str(missing_distribution_sf)
+missing_distribution_sf$Freq <- as.numeric(missing_distribution_sf$Freq)
+
+missing_distribution_sf_plot_09 <-
+  ggplot(missing_distribution_sf) + 
+    # geom_sf(data = vg2500_krs, fill="black") + 
+    geom_sf(aes(fill = cut(Freq, c(0,9,17)) )) + 
+  guides(fill=guide_legend(title="Number of Observations - Cut 9"))
+
+missing_distribution_sf_plot_10 <-
+  ggplot(missing_distribution_sf) + 
+  # geom_sf(data = vg2500_krs, fill="black") + 
+  geom_sf(aes(fill = cut(Freq, c(0,10,17)) ))+ 
+  guides(fill=guide_legend(title="Number of Observations - Cut 10"))
 
 
-## comIds with at least one observation missing ##
-list_delete <- c( 3101, 3102, 3103, 3153, 3154, 3157, 3158,  
-           3402, 3404, 
-           5111, 5112, 5113, 5114, 5117, 5119, 5124, 5314, 5315, 5316, 5334, 5378,  5512, 5515 ,
-           5711, 5911, 5913, 5914, 5916, 5954,  6411, 6412, 6413, 
-           6438, 6611, 7131, 7132, 7133, 7134, 7135, 7137, 7138, 7140, 7141, 7143, 
-           7233,  7331, 7332, 7333, 7334, 7335, 7337, 7338, 7339, 7340, 8111, 8115, 8117, 8135,  8215, 8216, 
-           8235,  8315, 8316, 8317,  8326, 8327,  8336, 8415, 8416,  8435 ,
-           9461,  
-           12052, 12053, 13051, 13052, 13053, 13054, 13055, 13056, 13057, 13058, 13059, 13060, 13061, 
-           13062, 14511, 14612, 14628, 14713, 15001, 15082, 15083, 15084, 15085, 15086, 15087, 15088, 15089, 15091, 16051, 16052, 16056, 
-           16072)
+missing_distribution_sf_plot <-
+  ggplot(missing_distribution_sf) + 
+  # geom_sf(data = vg2500_krs, fill="black") + 
+  geom_sf(aes(fill = Freq) ) + 
+  guides(fill=guide_legend(title="Number of Observations"))
+
+ggsave(paste("./figures/figures_exploratory/Train/MissingValues/", "MissingValues_cut9.pdf", sep="") , missing_distribution_sf_plot_09, width=16, height=9) 
+ggsave(paste("./figures/figures_exploratory/Train/MissingValues/", "MissingValues_cut10.pdf", sep="") , missing_distribution_sf_plot_10, width=16, height=9) 
+ggsave(paste("./figures/figures_exploratory/Train/MissingValues/", "MissingValues_cut.pdf", sep="") , missing_distribution_sf_plot, width=16, height=9) 
+
+# 
+# ## comIds with at least one observation missing ##
+# list_delete <- c( 3101, 3102, 3103, 3153, 3154, 3157, 3158,  
+#            3402, 3404, 
+#            5111, 5112, 5113, 5114, 5117, 5119, 5124, 5314, 5315, 5316, 5334, 5378,  5512, 5515 ,
+#            5711, 5911, 5913, 5914, 5916, 5954,  6411, 6412, 6413, 
+#            6438, 6611, 7131, 7132, 7133, 7134, 7135, 7137, 7138, 7140, 7141, 7143, 
+#            7233,  7331, 7332, 7333, 7334, 7335, 7337, 7338, 7339, 7340, 8111, 8115, 8117, 8135,  8215, 8216, 
+#            8235,  8315, 8316, 8317,  8326, 8327,  8336, 8415, 8416,  8435 ,
+#            9461,  
+#            12052, 12053, 13051, 13052, 13053, 13054, 13055, 13056, 13057, 13058, 13059, 13060, 13061, 
+#            13062, 14511, 14612, 14628, 14713, 15001, 15082, 15083, 15084, 15085, 15086, 15087, 15088, 15089, 15091, 16051, 16052, 16056, 
+#            16072)
+# length(list_delete)
+# list_delete[[1]]
+
+## comIds with less than nine observation: ##
+list_delete <- c(3101, 3102, 3402, 5111 , 5112 , 5113 , 5114, 5117, 5124, 5314,
+          5315, 5334,5378,  5512, 5911,   5916,  7131,  7133, 7135, 7233, 
+          7331, 7332,7334, 7335, 7337,    7338, 7339,   8111,12052, 14612, 16052 )
+
 length(list_delete)
 list_delete[[1]]
+
 
 ## Look at comIds with missing dependent data ##
 k <- NULL
@@ -187,20 +236,8 @@ Yield_Covariates[,c("comId","year")] <- lapply(Yield_Covariates[,c("comId","year
 # ##################################################
 # #### Remove log trend of indepedent variable ####
 # ################################################
-# ' Da es keinen Trend gibt benutzten wir nun die reinform der yield daten'
-# # 'Fit log of yield on log of time and use the residuals of that for yields'
-# logtrend <- lm(log(siloMaize) ~ log(as.integer(year)), data = Yield_Covariates)
-# # summary(logtrend)
-# # 
-# # ## Plot detrending 
-# par(mfrow = c(1,1))
-# plot(log(Yield_Covariates$siloMaize)~log(as.integer(Yield_Covariates$year))) 
-# abline(logtrend)
-
-# logtrend <- lm(log(siloMaize) ~ log(as.integer(year)), data= Yield_Covariates)
-# summary(logtrend)
-# Yield_Covariates$siloMaize_logtrend <- resid(logtrend)
-# plot(logtrend)
+trend <- lm(siloMaize ~ as.integer(year), data = Yield_Covariates)
+summary(trend)
 
 'Da es keinen Trend gibt, detrenden wir die Daten nicht mehr. Dennoch lass ich weiterhin siloMaize_logtrend im Datensatz '
 
@@ -220,15 +257,15 @@ Yield_Covariates[,c("comId","year")] <- lapply(Yield_Covariates[,c("comId","year
 ###################################################
 ' based on outlier statistic in regression on trend'
 par(mfrow = c(2,2))
-plot(logtrend) 
+plot(trend) 
 
 ## Look at Outliers Values ##
-Yield_Covariates[c(1540, 3884, 3915),] # comId 6532, 12067, 12069
+Yield_Covariates[c(1785, 934, 1383),] # comId 6532, 5116, 5319
 
 ## Look at other values of outliers com #
 Yield_Covariates[Yield_Covariates$comId == "6532",] # 2008 hier scheint nur ein Jahr ein Messfehler zu sein: diesen korrigiere ich 86.4 <- 486.4
-Yield_Covariates[Yield_Covariates$comId == "12067",] # 2006 verändere ich nicht 
-Yield_Covariates[Yield_Covariates$comId == "12069",] # 2003 verändere ich nicht 
+Yield_Covariates[Yield_Covariates$comId == "5116",] # 2006 verändere ich nicht 
+Yield_Covariates[Yield_Covariates$comId == "5913",] # 2003 verändere ich nicht 
 
 ## Correct Typo in Data ##
 Yield_Covariates[c(Yield_Covariates$comId == "6532" & Yield_Covariates$year == "2008"), 6] <- 486.4
@@ -236,145 +273,149 @@ Yield_Covariates[c(Yield_Covariates$comId == "6532" & Yield_Covariates$year == "
 
 
 ##########################################################
-#### Change Variable Names: Prec -> Pre, Tavg -> Tav ####
+#### Change Variable Names: Prec -> P, Tavg -> T ####
 ########################################################
-names(Yield_Covariates) <- gsub("Prec", "Pre", names(Yield_Covariates))
-names(Yield_Covariates) <- gsub("Tavg", "Tav", names(Yield_Covariates))
+names(Yield_Covariates) <- gsub("Prec", "P", names(Yield_Covariates))
+names(Yield_Covariates) <- gsub("Tavg", "T", names(Yield_Covariates))
 
-
-########################################
+################################################################
 ##### Save newly created data.frane Yield_Covariates extern ####
-######################################
-write.csv(Yield_Covariates, file="./data/data_processed/Yield_Covariates.csv")
+################################################################
+# write.csv(Yield_Covariates, file="./data/data_processed/Yield_Covariates.csv")
 
 
 # ##################################################################################################################################################################
 # ################################### Explore Models ###############################################################################################################
 # ##################################################################################################################################################################
  
-' Ich habe hier eine explorative Analyse verschiedener Modelle gemacht. Der Code zu der Analyse befindet sich in BasePrediction_long.R .
- Vor allem habe ich mit stepwise in 4 Stufen und Polynomen von SMI gespielt.
-Ergebnisse sind
-- Interessant ist, dass wenn man für die Meteorologie kontrolliert (Prec, Tav im July), die SMI wet im August an Significanz verlieren 
-  (Adj. R-Squared: 0.34778 fpr diese Modell (SMIJun6, Pol3TavPreJun, SMIAug6)
-- Wenn mann eine stepwise function mit nur 4 steps nimmt, dann sind die Ergebnisse vergleichbar (Adj. R-Squared: 0.34353)
-- Interactionsterme zwischen SMIJun4 und SMIJun4 liefern schlechtere Ergebnisse als mit Meteoroligie
-(Adj. R-Squared: 0.23835 ohne Tav und Prec July): Es scheint nicht möglich zu sein für
-die Meteorologie in July via SMI-Intaction Jun und Ug zu kontrollieren. 
-- Wenn ich neben Interaction SMI auch für Meteorologie im July reagieren habe ich ein Adj. R-Squared: 0.34989 für Polynome 3. Grades 
-  und 0.35036 für Polynome 4. Grades in Prec and Tav 
-- Polynime statt stepwise functions für den SMI verbessern die Ergebnnise auch nicht :
-# # Adj. R-Squared: 0.34989, Polynome 3. Grades in Prec and Tav and SMI
-# # Adj. R-Squared: 0.35036, Polynome 4. Grades in Prec and Tav , SMi 3. Grad
-# # Adj. R-Squared: 0.35595, Polynome 4. Grades in Prec and Tav and SMI
--  Meteorologie im July verbessert die vorhersagekraft im sample sehr. 
-'
-#############################################################################################################################################################################
-#############################################################################################################################################################################
-
-################################################################################################################################
-#### Explore differences on extimation procedure which use plm, demeaned data, or LSDV - in particular for nonlinearities #####
-##############################################################################################################################
-
-##############################
-#### (Time) - Demean Data ####
-str(Yield_Covariates)
-## Scale all the data within a comId ##
-Yield_Covariates_demean1  <- ddply(Yield_Covariates,  ~ comId,  numcolwise(scale, scale=FALSE))
-
-summary(Yield_Covariates_demean1)#
-str(Yield_Covariates_demean1)
-names(Yield_Covariates_demean1)
-
-#########################################################################
-#### Compare the data demeaned by ddplyr with manually demeand Data ####
-
-## ddplyr
-head(Yield_Covariates_demean1,18)[5]
-## manually
-# head(Yield_Covariates)[8]
-Yield_Covariates[1:18,8] - mean(Yield_Covariates[1:17,8]) 
-' Da der 18. Wert nicht mehr übereinstimmt scheint dass demeanen für die einzelnen comIds zu funktionieren.'
-
-#######################################################################################################
-#### Comprise full demeaned data.frame  also including temporal information and stepwise functions ####
-## Append Year ##
-year <- Yield_Covariates$year
-Yield_Covariates_demean  <- cbind(year, Yield_Covariates_demean1)
-summary(Yield_Covariates_demean)
-names(Yield_Covariates_demean)
-
-## Change Order that comId is first column ##
-Yield_Covariates_demean  <- Yield_Covariates_demean[,c(2,1,3:length(names(Yield_Covariates_demean)))]
-names(Yield_Covariates_demean )
-
-## Append stepwise functions ##
-names(Yield_Covariates)[(length(names(Yield_Covariates))-3):(length(names(Yield_Covariates))-1)]
-names(cbind(Yield_Covariates_demean, Yield_Covariates[(length(names(Yield_Covariates))-3):(length(names(Yield_Covariates))-1)]))
-
-Yield_Covariates_demean <- cbind(Yield_Covariates_demean, Yield_Covariates[(length(names(Yield_Covariates))-3):(length(names(Yield_Covariates))-1)])
-str(Yield_Covariates_demean )
-
-############################################################
-#### Compare results of plm, demean, and lm with dummy ####
-##########################################################
-
-#### linear ####
-## plm
-plm.fit_lin <- plm(siloMaize ~ SMI_Jun6 + SMI_Aug6 + I(Tav_Jul)  ,
-               data = Yield_Covariates,  effect="individual", model=("within"), index = c("comId","year"))
-summary(plm.fit_lin)
-
-## demean
-lm.fit_demean_lin <- lm(siloMaize ~  SMI_Jun6 + SMI_Aug6 + I(Tav_Jul) , data = Yield_Covariates_demean)
-summary(lm.fit_demean_lin)  
-
-## LSDV 
-lm.fit_dummy_lin <- lm(siloMaize ~ SMI_Jun6 + SMI_Aug6  + I(Tav_Jul) + comId, data = Yield_Covariates)
-summary(lm.fit_dummy_lin) 
-
-## Comparision of Coefficients ##
-coefficients(lm.fit_dummy_lin)[2:14] # I(Tav_Jul): -0.019542 (siloMaize_logtrend); -0.02019190 log(siloMaize);  -8.423623 (silomaize);
-coefficients(plm.fit_lin)[1:13] # I(Tav_Jul):  -0.0195418, (siloMaize_logtrend);-0.02019190 log(siloMaize); -8.423623 (silomaize);
-coefficients(lm.fit_demean_lin)[2:14] # I(Tav_Jul): -0.020220 (siloMaize_logtrend); -0.02019190 log(siloMaize); -8.714845 (silomaize);
-
-#### nonlinear ####
-## plm
-plm.fit_nonlin <- plm(siloMaize ~ SMI_Jun6 + SMI_Aug6  + I(Tav_Jul)  + I(Tav_Jul^2) ,
-                   data = Yield_Covariates,  effect="individual", model=("within"), index = c("comId","year"))
-summary(plm.fit_nonlin) # Adj.  R-sq  0.33496 (siloMaize), 0.31927 (siloMaize_logtrend)
-
-## demean
-lm.fit_demean_nonlin <- lm(siloMaize ~  SMI_Jun6 + SMI_Aug6 + I(Tav_Jul)  + I(Tav_Jul^2) , data = Yield_Covariates_demean)
-summary(lm.fit_demean_nonlin) # Adj.  R-sq  0.3611  (siloMaize),  0.3454  (siloMaize_logtrend)
-
-## LSDV 
-lm.fit_dummy_nonlin <- lm(siloMaize ~ SMI_Jun6 + SMI_Aug6  + I(Tav_Jul)  + I(Tav_Jul^2) + factor(comId), data = Yield_Covariates)
-summary(lm.fit_dummy_nonlin) # Adj.  R-sq  0.6801 (siloMaize),  0.6779  (siloMaize_logtrend)
-
-## Comparision of Coefficients ##
-coefficients(lm.fit_dummy_nonlin)[2:15 ] # I(Tav_Jul) 0.146906158, I(Tav_Jul^2) -0.004449528 (siloMaize_logtrend);  
-# I(Tav_Jul)55.492156  , I(Tav_Jul^2) -1.708612 (siloMaize)
-coefficients(plm.fit_nonlin)[1:14]  # I(Tav_Jul) 0.146906158, I(Tav_Jul^2) -0.004449528 (siloMaize_logtrend)
-# I(Tav_Jul)55.49215 , I(Tav_Jul^2) -1.708612 (siloMaize)
-coefficients(lm.fit_demean_nonlin)[2:15] # I(Tav_Jul) -0.017895938 , I(Tav_Jul^2) -0.004448825(siloMaize_logtrend)
-# I(Tav_Jul)-7.806 , I(Tav_Jul^2) -1.740 (siloMaize)
-
-'Bei linearer Konfiguration: Für die Coefficienten bekomme ich die gleichen Werte. 
-Das adjusted R-square unterscheidet sich aber zwischen demean und plm.
-Dummy liefert natürlich ein größeres R2, da dort die Fixed Effects explicit mit eingehen. 
-Bei linearen Modellen kann man also Problemlos demeanen. Des weiteren ist der SMI 
-wohl so wie er definiert ist nicht durch demeanen betroffen, da das demeaning framework nicht für die SMIs angewendet wurde 
-(numcolwise berücksichtige alle Faktoren nicht), 
-die Ergebnisse bei linearen Konfigurationen aber gleich sind.
-Bei nichtlinearitäten: lm.fit_demean liefert andere cofficienten für die Polynome als die drei anderen Modelle. 
-D.h. durch das demeanen werden die Poylnomberechnungen entscheidend verändert.
-The function poly does not work with demeanded data, even not with degree 1 '
-
-'
-Ich glaube, es wäre schlecht, wenn die Daten gefitted werden, ohne dass jede räumliche Einheit betrachtet werden. In so einem Fall würde es nämlich keinen Fixed Effect
-für die Daten in einem Ort geben. Das heißt, dort würde kein demeaning stattfinden. Daher sollte ich darauf achten, dass ich stratified samples für cross-validation nehme ()
-'
+# ' 
+# Caveat: Die Explorative Analyse war für den Datensatz welcher nur comIds mit vollständigen Report berücksichtigt hat
+# Ich habe hier eine explorative Analyse verschiedener Modelle gemacht. Der Code zu der Analyse befindet sich in BasePrediction_long.R .
+#  Vor allem habe ich mit stepwise in 4 Stufen und Polynomen von SMI gespielt.
+# Ergebnisse sind
+# - Interessant ist, dass wenn man für die Meteorologie kontrolliert (P, T im July), die SMI wet im August an Significanz verlieren 
+#   (Adj. R-Squared: 0.34778 fpr diese Modell (SMIJun6, Pol3TPJun, SMIAug6)
+# - Wenn mann eine stepwise function mit nur 4 steps nimmt, dann sind die Ergebnisse vergleichbar (Adj. R-Squared: 0.34353)
+# - Interactionsterme zwischen SMIJun4 und SMIJun4 liefern schlechtere Ergebnisse als mit Meteoroligie
+# (Adj. R-Squared: 0.23835 ohne T und P July): Es scheint nicht möglich zu sein für
+# die Meteorologie in July via SMI-Intaction Jun und Ug zu kontrollieren. 
+# - Wenn ich neben Interaction SMI auch für Meteorologie im July reagieren habe ich ein Adj. R-Squared: 0.34989 für Polynome 3. Grades 
+#   und 0.35036 für Polynome 4. Grades in P and T 
+# - Polynime statt stepwise functions für den SMI verbessern die Ergebnnise auch nicht :
+# # # Adj. R-Squared: 0.34989, Polynome 3. Grades in P and T and SMI
+# # # Adj. R-Squared: 0.35036, Polynome 4. Grades in P and T , SMi 3. Grad
+# # # Adj. R-Squared: 0.35595, Polynome 4. Grades in P and T and SMI
+# -  Meteorologie im July verbessert die vorhersagekraft im sample sehr. 
+# '
+# #############################################################################################################################################################################
+# #############################################################################################################################################################################
+# 
+# ################################################################################################################################
+# #### Explore differences on extimation procedure which use plm, demeaned data, or LSDV - in particular for nonlinearities #####
+# ##############################################################################################################################
+# 
+# ##############################
+# #### (Time) - Demean Data ####
+# str(Yield_Covariates)
+# ## Scale all the data within a comId ##
+# Yield_Covariates_demean1  <- ddply(Yield_Covariates,  ~ comId,  numcolwise(scale, scale=FALSE))
+# 
+# summary(Yield_Covariates_demean1)#
+# str(Yield_Covariates_demean1)
+# names(Yield_Covariates_demean1)
+# 
+# #########################################################################
+# #### Compare the data demeaned by ddplyr with manually demeand Data ####
+# 
+# ## ddplyr
+# head(Yield_Covariates_demean1,18)[5]
+# ## manually
+# # head(Yield_Covariates)[8]
+# Yield_Covariates[1:18,8] - mean(Yield_Covariates[1:17,8]) 
+# ' Da der 18. Wert nicht mehr übereinstimmt scheint dass demeanen für die einzelnen comIds zu funktionieren.'
+# 
+# #######################################################################################################
+# #### Comprise full demeaned data.frame  also including temporal information and stepwise functions ####
+# ## Append Year ##
+# year <- Yield_Covariates$year
+# Yield_Covariates_demean  <- cbind(year, Yield_Covariates_demean1)
+# summary(Yield_Covariates_demean)
+# names(Yield_Covariates_demean)
+# 
+# ## Change Order that comId is first column ##
+# Yield_Covariates_demean  <- Yield_Covariates_demean[,c(2,1,3:length(names(Yield_Covariates_demean)))]
+# names(Yield_Covariates_demean )
+# 
+# ## Append stepwise functions ##
+# names(Yield_Covariates)[(length(names(Yield_Covariates))-2):(length(names(Yield_Covariates)))]
+# names(cbind(Yield_Covariates_demean, Yield_Covariates[(length(names(Yield_Covariates))-2):(length(names(Yield_Covariates)))]))
+# 
+# Yield_Covariates_demean <- cbind(Yield_Covariates_demean, Yield_Covariates[(length(names(Yield_Covariates))-2):(length(names(Yield_Covariates)))])
+# str(Yield_Covariates_demean )
+# 
+# ############################################################
+# #### Compare results of plm, demean, and lm with dummy ####
+# ##########################################################
+# 
+# #### linear ####
+# ## plm
+# plm.fit_lin <- plm(siloMaize ~ SMI_Jun6 + SMI_Aug6 + I(T_Jul)  ,
+#                data = Yield_Covariates,  effect="individual", model=("within"), index = c("comId","year"))
+# summary(plm.fit_lin)
+# 
+# ## demean
+# lm.fit_demean_lin <- lm(siloMaize ~  SMI_Jun6 + SMI_Aug6 + I(T_Jul) , data = Yield_Covariates_demean)
+# summary(lm.fit_demean_lin)  
+# 
+# ## LSDV 
+# lm.fit_dummy_lin <- lm(siloMaize ~ SMI_Jun6 + SMI_Aug6  + I(T_Jul) + comId, data = Yield_Covariates)
+# summary(lm.fit_dummy_lin) 
+# 
+# ## Comparision of Coefficients ##
+# coefficients(lm.fit_dummy_lin)[2:14] # I(T_Jul): -0.019542 (siloMaize_logtrend); -0.02019190 log(siloMaize);  -8.423623 (silomaize);
+# coefficients(plm.fit_lin)[1:13] # I(T_Jul):  -0.0195418, (siloMaize_logtrend);-0.02019190 log(siloMaize); -8.423623 (silomaize);
+# coefficients(lm.fit_demean_lin)[2:14] # I(T_Jul): -0.020220 (siloMaize_logtrend); -0.02019190 log(siloMaize); -8.714845 (silomaize);
+# ' Die Coefficienten ändern sich kaum wenn man mit cutoff 9 statt mit cuttoff 17 arbeitet'
+# 
+# #### nonlinear ####
+# ## plm
+# plm.fit_nonlin <- plm(siloMaize ~ SMI_Jun6 + SMI_Aug6  + I(T_Jul)  + I(T_Jul^2) ,
+#                    data = Yield_Covariates,  effect="individual", model=("within"), index = c("comId","year"))
+# summary(plm.fit_nonlin) # Adj.  R-sq  0.33496 (siloMaize), 0.31927 (siloMaize_logtrend)
+# 
+# ## demean
+# lm.fit_demean_nonlin <- lm(siloMaize ~  SMI_Jun6 + SMI_Aug6 + I(T_Jul)  + I(T_Jul^2) , data = Yield_Covariates_demean)
+# summary(lm.fit_demean_nonlin) # Adj.  R-sq  0.3611  (siloMaize),  0.3454  (siloMaize_logtrend)
+# 
+# ## LSDV 
+# lm.fit_dummy_nonlin <- lm(siloMaize ~ SMI_Jun6 + SMI_Aug6  + I(T_Jul)  + I(T_Jul^2) + factor(comId), data = Yield_Covariates)
+# summary(lm.fit_dummy_nonlin) # Adj.  R-sq  0.6801 (siloMaize),  0.6779  (siloMaize_logtrend)
+# 
+# ## Comparision of Coefficients ##
+# coefficients(lm.fit_dummy_nonlin)[2:15 ] # I(T_Jul) 0.146906158, I(T_Jul^2) -0.004449528 (siloMaize_logtrend);  
+# # I(T_Jul)55.492156  , I(T_Jul^2) -1.708612 (siloMaize)
+# coefficients(plm.fit_nonlin)[1:14]  # I(T_Jul) 0.146906158, I(T_Jul^2) -0.004449528 (siloMaize_logtrend)
+# # I(T_Jul)55.49215 , I(T_Jul^2) -1.708612 (siloMaize)
+# coefficients(lm.fit_demean_nonlin)[2:15] # I(T_Jul) -0.017895938 , I(T_Jul^2) -0.004448825(siloMaize_logtrend)
+# # I(T_Jul)-7.806 , I(T_Jul^2) -1.740 (siloMaize)
+# 
+# 
+# ' Die Coefficienten ändern sich kaum wenn man mit cutoff 9 statt mit cuttoff 17 arbeitet
+# Bei linearer Konfiguration: Für die Coefficienten bekomme ich die gleichen Werte. 
+# Das adjusted R-square unterscheidet sich aber zwischen demean und plm.
+# Dummy liefert natürlich ein größeres R2, da dort die Fixed Effects explicit mit eingehen. 
+# Bei linearen Modellen kann man also Problemlos demeanen. Des weiteren ist der SMI 
+# wohl so wie er definiert ist nicht durch demeanen betroffen, da das demeaning framework nicht für die SMIs angewendet wurde 
+# (numcolwise berücksichtige alle Faktoren nicht), 
+# die Ergebnisse bei linearen Konfigurationen aber gleich sind.
+# Bei nichtlinearitäten: lm.fit_demean liefert andere cofficienten für die Polynome als die drei anderen Modelle. 
+# D.h. durch das demeanen werden die Poylnomberechnungen entscheidend verändert.
+# The function poly does not work with demeanded data, even not with degree 1 '
+# 
+# '
+# Ich glaube, es wäre schlecht, wenn die Daten gefitted werden, ohne dass jede räumliche Einheit betrachtet werden. In so einem Fall würde es nämlich keinen Fixed Effect
+# für die Daten in einem Ort geben. Das heißt, dort würde kein demeaning stattfinden. Daher sollte ich darauf achten, dass ich stratified samples für cross-validation nehme ()
+# '
 #############################################################################################################################################################################
 ###############################################################################################################################################################################
 # ############################
@@ -393,44 +434,94 @@ anomaly_correction <- ddply(Yield_Covariates, c("comId"), summarise, mean = mean
 str(anomaly_correction)
 summary(anomaly_correction$mean)
 
+#### Make a map of average values ####
+anomaly_correction_sf <- merge(vg2500_krs, anomaly_correction, by.x="RS", by.y="comId")
+dim(anomaly_correction)
+dim(anomaly_correction_sf)
+
+## Anomaly
+anomaly_correction_sf_plot <- 
+  ggplot(anomaly_correction_sf) + 
+    geom_sf(data=vg2500_krs,fill="white") + 
+    geom_sf(aes(fill = mean)) +  
+  guides(fill = guide_legend(title = "Av. Yield "))
+
+
+ggsave(paste("./figures/figures_exploratory/Train/", "AverageYield.pdf", sep=""), anomaly_correction_sf_plot, device="pdf", width=8, height= 8) 
+
+
+
+
 ###########################################################################################################################################################
 ################ Predict on data which were used to train the model (one prediction for each year) to allow comparision ##################################
 #########################################################################################################################################################
 
-########################################
+#########################################
 #### Fit model used for Predictions ####
-names(Yield_Covariates)
-summary(Yield_Covariates$siloMaize)
-summary(log(Yield_Covariates$siloMaize))
-summary(Yield_Covariates$siloMaize)
+#######################################
 
-############################
-#### Fit combined model ####
-lm.fit_SMI_6_Jun_Aug_comId <- lm(siloMaize ~ Tav_Jul + Pre_Jul  + I(Tav_Jul^2) +  I(Tav_Jul^3) + I(Pre_Jul^2) +  I(Pre_Jul^3) + SMI_Jun6 + SMI_Aug6 + comId,
+####################################
+#### Fit combined model - yield ####
+lm.fit_SMI_6_Jun_Aug_comId <- lm(siloMaize ~ T_Jul + P_Jul  + I(T_Jul^2) +  I(T_Jul^3) + I(P_Jul^2) +  I(P_Jul^3) + SMI_Jun6 + SMI_Aug6 + comId,
                                        data = Yield_Covariates)
-summary(lm.fit_SMI_6_Jun_Aug_comId ) # Adjusted R-squared:  0.6939 (silomaize_logtrend) , Adjusted R-squared:  0.6964 (silomaize)
+summary(lm.fit_SMI_6_Jun_Aug_comId )  # Adjusted R-squared:  0.6939 (silomaize_logtrend) , Adjusted R-squared:  0.6964 (silomaize - only full observations),
+                                      # Adjusted R-squared:  0.6857  (silomaize - keep comIds with at least nine observations)
 
 
 #### Compare to plm.fit ####
-plm.fit_SMI_6_Jun_Aug_comId <- plm(siloMaize ~ Tav_Jul + Pre_Jul  + I(Tav_Jul^2) +  I(Tav_Jul^3) + I(Pre_Jul^2) +  I(Pre_Jul^3) + SMI_Jun6 + SMI_Aug6,
+plm.fit_SMI_6_Jun_Aug_comId <- plm(siloMaize ~ T_Jul + P_Jul  + I(T_Jul^2) +  I(T_Jul^3) + I(P_Jul^2) +  I(P_Jul^3) + SMI_Jun6 + SMI_Aug6,
                                  data = Yield_Covariates, effect="individual", model=("within"), index = c("comId","year"))
-summary(plm.fit_SMI_6_Jun_Aug_comId ) # Adjusted R-squared:  0.35306 (silomaize_logtrend) , 0.36876 (silomaize)
+summary(plm.fit_SMI_6_Jun_Aug_comId ) # Adjusted R-squared:  0.35306 (silomaize_logtrend) , 0.36876 (silomaize - only full observations)
+                                      # Adjusted R-squared:  0.33616  (silomaize - keep comIds with at least nine observations)
 
 
-#####################################
-#### Fit best model from paper 1 ####
-lm.fit_SMI_6_Jul_comId <- lm(siloMaize ~ Tav_Jul + Pre_Jul  + I(Tav_Jul^2) +  I(Tav_Jul^3) + I(Pre_Jul^2) +  I(Pre_Jul^3) + SMI_Jul6 + comId,
+#############################################
+#### Fit best model from paper 1 - yield ####
+lm.fit_SMI_6_Jul_comId <- lm(siloMaize ~ T_Jul + P_Jul  + I(T_Jul^2) +  I(T_Jul^3) + I(P_Jul^2) +  I(P_Jul^3) + SMI_Jul6 + comId,
                                  data = Yield_Covariates)
-summary(lm.fit_SMI_6_Jul_comId ) # Adjusted R-squared:  0.6694 (silomaize_logtrend) , Adjusted R-squared:  0.669 (silomaize)
+summary(lm.fit_SMI_6_Jul_comId )  # Adjusted R-squared:  0.6694 (silomaize_logtrend) , Adjusted R-squared:  0.669 (silomaize- only full observations),
+                                  # Adjusted R-squared:  0.661  (silomaize - keep comIds with at least nine observations)
 
 
 #### Compare to plm.fit ####
-plm.fit_SMI_6_Jul_comId <- plm(siloMaize ~ Tav_Jul + Pre_Jul  + I(Tav_Jul^2) +  I(Tav_Jul^3) + I(Pre_Jul^2) +  I(Pre_Jul^3) + SMI_Jul6,
+plm.fit_SMI_6_Jul_comId <- plm(siloMaize ~ T_Jul + P_Jul  + I(T_Jul^2) +  I(T_Jul^3) + I(P_Jul^2) +  I(P_Jul^3) + SMI_Jul6,
                                    data = Yield_Covariates, effect="individual", model=("within"), index = c("comId","year"))
-summary(plm.fit_SMI_6_Jul_comId ) # Adjusted R-squared:  0.30122 (silomaize_logtrend) , 0.31181(silomaize)
+summary(plm.fit_SMI_6_Jul_comId ) # Adjusted R-squared:  0.30122 (silomaize_logtrend) , 0.31181(silomaize- only full observations),
+                                  # Adjusted R-squared:  0.28411  (silomaize - keep comIds with at least nine observations)
 
-'Das beste Model in Paper1 hat ein adjusted R-square von 0.66 (demeaned R-square 0.31). Das ist eine Verbesserung von 10 Prozent.
-  Wenn ich das detrenden weglasse ändert sich faktisch nichts an der Erklärungskraft des Models. Zudem ist der trend nicht signifikant in der Steigung.'
+
+ 
+#########################################
+#### Fit combined model - log(yield) ####
+lm.fit_SMI_6_Jun_Aug_comId_log <- lm(log(siloMaize) ~ T_Jul + P_Jul  + I(T_Jul^2) +  I(T_Jul^3) + I(P_Jul^2) +  I(P_Jul^3) + SMI_Jun6 + SMI_Aug6 + comId,
+                                 data = Yield_Covariates)
+summary(lm.fit_SMI_6_Jun_Aug_comId_log )  # Adjusted R-squared:  0.6939 (silomaize_logtrend) , Adjusted R-squared:  0.6964 (silomaize - only full observations),
+# Adjusted R-squared:  0.6857  (silomaize - keep comIds with at least nine observations)
+# Adjusted R-squared:  0.6869  (log(silomaize) - keep comIds with at least nine observations)
+
+
+#### Compare to plm.fit ####
+plm.fit_SMI_6_Jun_Aug_comId_log <- plm(log(siloMaize) ~ T_Jul + P_Jul  + I(T_Jul^2) +  I(T_Jul^3) + I(P_Jul^2) +  I(P_Jul^3) + SMI_Jun6 + SMI_Aug6,
+                                   data = Yield_Covariates, effect="individual", model=("within"), index = c("comId","year"))
+summary(plm.fit_SMI_6_Jun_Aug_comId_log ) # Adjusted R-squared:  0.35306 (silomaize_logtrend) , 0.36876 (silomaize - only full observations)
+# Adjusted R-squared:  0.33616  (silomaize - keep comIds with at least nine observations)
+# Adjusted R-squared:  0.33104  (log(silomaize) - keep comIds with at least nine observations)
+
+
+##################################################
+#### Fit best model from paper 1 - log(yield) ####
+lm.fit_SMI_6_Jul_comId_log <- lm(log(siloMaize)~ T_Jul + P_Jul  + I(T_Jul^2) +  I(T_Jul^3) + I(P_Jul^2) +  I(P_Jul^3) + SMI_Jul6 + comId,
+                             data = Yield_Covariates)
+summary(lm.fit_SMI_6_Jul_comId_log )  # Adjusted R-squared:  0.6694 (silomaize_logtrend) , Adjusted R-squared:  0.669 (silomaize- only full observations),
+# Adjusted R-squared:  0.661  (silomaize - keep comIds with at least nine observations)
+# Adjusted R-squared:   0.6859  (log(silomaize) - keep comIds with at least nine observations)
+
+#### Compare to plm.fit ####
+plm.fit_SMI_6_Jul_comId_log <- plm(log(siloMaize) ~ T_Jul + P_Jul  + I(T_Jul^2) +  I(T_Jul^3) + I(P_Jul^2) +  I(P_Jul^3) + SMI_Jul6,
+                               data = Yield_Covariates, effect="individual", model=("within"), index = c("comId","year"))
+summary(plm.fit_SMI_6_Jul_comId_log ) # Adjusted R-squared:  0.30122 (silomaize_logtrend) , 0.31181(silomaize- only full observations),
+# Adjusted R-squared:  0.28411  (silomaize - keep comIds with at least nine observations)
+# Adjusted R-squared: 0.28289,   (log(silomaize) - keep comIds with at least nine observations)
 
 
 ######################################################################
@@ -448,17 +539,18 @@ for (i in 1:2){
 
   ######################################################################################################################################
   #### Loop thorugh 1999 to 2015 to make predictions for each year (stored in predictData_train and predictData_train_anomaly) ####
+  
+  ## Prepare loop ##
   listyear <- seq(1999, 2015)
   
-  ## Create containers ##
+  ## Create containers 
   predictData_train <- NULL
   predictData_train_anomaly <- NULL
   predictData_train <- list(1:262)
   predictData_train_anomaly  <- list(1:262)
   
-  
-  
-  for(m in 1:17){
+  ## Start loop ##
+    for(m in 1:17){
     ## Create data.frame for the year m ##
     Yield_Covariates_year <- Yield_Covariates[Yield_Covariates$year == listyear[[m]], ]
     dim(Yield_Covariates_year)
@@ -469,7 +561,7 @@ for (i in 1:2){
     predict_year <- as.data.frame(predict(modelList[[i]], newdata = Yield_Covariates_year ))
     # dim(predict_year )
     
-      ## Correct for the mean(detrend(log(silagmaize yield)))
+    ## Correct for the mean(detrend(log(silagmaize yield)))
     predict_year_anomaly  <- predict_year - anomaly_correction$mean
     # predict_year_anomaly_july  <- predict_year_july - anomaly_correction$mean
     
@@ -660,7 +752,7 @@ Yield_Covariates$X <- NULL
 ###################################################################
 #### Create data.frame including variables used for estimation ####
 Yield_Covariates_short <- as.data.frame(Yield_Covariates[,names(Yield_Covariates)%in%c("year","comId", "siloMaize", 
-                                                                                       "SMI_Jun6","SMI_Jul6", "SMI_Aug6", "Tav_Jul",
+                                                                                       "SMI_Jun6","SMI_Jul6", "SMI_Aug6", "T_Jul",
                                                                                        "Pre_Jul")])
 names(Yield_Covariates_short)
 
@@ -715,13 +807,13 @@ summary(Yield_Covariates_modelmatrix$siloMaize)
 ## June to August
 head(Yield_Covariates_modelmatrix)[, c(-4, -6)]
 lm.fit_SMI_6_Jun_Aug_modelmatrix <- 
-  lm(siloMaize ~ I(Tav_Jul^2) + I(Tav_Jul^3)  +I(Pre_Jul^2) +  I(Pre_Jul^3) + .   ,
+  lm(siloMaize ~ I(T_Jul^2) + I(T_Jul^3)  +I(Pre_Jul^2) +  I(Pre_Jul^3) + .   ,
      data = Yield_Covariates_modelmatrix[, -5])
 summary(lm.fit_SMI_6_Jun_Aug_modelmatrix) # Adjusted R-squared:  0.6964 
 
 ## July
 lm.fit_SMI_6_Jul_modelmatrix <- 
-  lm(siloMaize ~ I(Tav_Jul^2) + I(Tav_Jul^3)  +I(Pre_Jul^2) +  I(Pre_Jul^3) + .   ,
+  lm(siloMaize ~ I(T_Jul^2) + I(T_Jul^3)  +I(Pre_Jul^2) +  I(Pre_Jul^3) + .   ,
      data = Yield_Covariates_modelmatrix[, c(-4, -6)])
 summary(lm.fit_SMI_6_Jul_modelmatrix) # Adjusted R-squared:   0.669 
 
@@ -813,7 +905,7 @@ for (s in 1:length(modelListMatrix) ){
     #################################
     #### Choose variables needed ####
     NewValues_short <- as.data.frame(NewValues[,names(NewValues)%in%c("year","comId", "siloMaize_logtrend", 
-                                                                            "SMI_Jun6","SMI_Jul6", "SMI_Aug6", "Tav_Jul", "Pre_Jul")])
+                                                                            "SMI_Jun6","SMI_Jul6", "SMI_Aug6", "T_Jul", "Pre_Jul")])
     str(NewValues_short)
     
     ##############################################################################################
