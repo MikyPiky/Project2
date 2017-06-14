@@ -4,7 +4,7 @@
 
 #### Description ####
 '
-Here I look at plots which average over all climate models ("MPI","DMI","KNMI","ICTP","SMHIRCA")
+Here I look at plots which average over all climate models ("MPI","DMI","KNMI","ICTP","SMHI")
 
 - Loop through five climate models 
   - read in tidy data for each climate model
@@ -89,8 +89,8 @@ vg2500_krs$RS <- as.integer(str_sub(vg2500_krs$RS, 1,5))
 vg2500_krs$RS
 
 ## Create List ##
-namelist_models <- c("MPI","DMI","KNMI","ICTP","SMHIRCA")
-# MeteoMonth_df_tidy <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list())
+namelist_models <- c("DMI","ICTP", "KNMI","MPI","SMHI")
+# MeteoMonth_df_tidy <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list())
 
 
 ##########################################################################################################
@@ -98,7 +98,7 @@ namelist_models <- c("MPI","DMI","KNMI","ICTP","SMHIRCA")
 ########################################################################################################
 ## Create list to read in the five model data.frames ##
 MeteoMonth_df_tidy_list <- list(MeteoMonth_df_tidy_summaries_MPI = data.frame(), MeteoMonth_df_tidy_DMI= data.frame(),
-                                MeteoMonth_df_tidy_KNMI= data.frame(), MeteoMonth_df_tidy_ICTP = data.frame(), MeteoMonth_df_tidy_SMHIRCA = data.frame())
+                                MeteoMonth_df_tidy_KNMI= data.frame(), MeteoMonth_df_tidy_ICTP = data.frame(), MeteoMonth_df_tidy_SMHI = data.frame())
 
 #### Read in the tidy data frames of each model ####
 for (l in 1:5){

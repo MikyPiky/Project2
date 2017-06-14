@@ -1,6 +1,6 @@
 #### Description of Script ####
 '
-- Process Data from climate projection runs based on 5 RGM ("DMI","ICTP","KNMI","MPI","SMHIRCA" - the driver is one climate model)
+- Process Data from climate projection runs based on 5 RGM ("DMI","ICTP","KNMI","MPI","SMHI" - the driver is one climate model)
 - Data are scaled on administrative districts by a Fortran routine
   - Stephans Fortran Program
     - Data are derived on (4*4 km)
@@ -10,10 +10,9 @@
 
   - Loop which 
    a) produces data.frames (csv) for each variables Pre, Tavg, and SMI 
-    a1) reads in the netcdf output for Pre, Tavg, and SMI for the three regional climate models used (MPI, DMI, KNMI, ICTP, SMHIRCA)
+    a1) reads in the netcdf output for Pre, Tavg, and SMI for the three regional climate models used (MPI, DMI, KNMI, ICTP, SMHI)
     a2) Extract to data.frame with the same time length
-    a3) Appends data.frame on SpatialPolyonDataFrame with Spatial Information (vg2500_krs)
-    a4) Export csv dataframes for each Input Variable seperately ( It is not possible to read in one large data.frame combining all information ) (Output Size = 200 MB)
+    a3) Export csv dataframes for each RCM
 
   - Loop which
      b) Reshape Spatial Data to Tidy Data to allow to fit the models
@@ -31,14 +30,12 @@
 '
 #### Output ####
 ## Files
-' - Wide data.frames_
-    "SMI_df_wide_*", "Tav_df_wide_*", "Pre_df_wide_*" (* is RCM) (GELÖSCHT, da loop sehr schnell geht)
-  - Tidy data.frame (nach reshape)  , MeteoMonth_df_tidy_*.csv
+' - Tidy data.frame (nach reshape)  , MeteoMonth_df_tidy_*.csv
   '
 
 
 #### Dependencies and Input ####
-'- Meterological and SMI Data derived from the climate models ("DMI","ICTP","KNMI","MPI","SMHIRCA") -> data_proj_Input
+'- Meterological and SMI Data derived from the climate models ("DMI","ICTP","KNMI","MPI","SMHI") -> data_proj_Input
  '
 
 #### Packages ####
@@ -73,14 +70,14 @@ library(stargazer)
 ########################################################################################################################################################################################
 #### Loop which 
 #### a) produces data.frames (csv) for each variables Pre, Tavg, and SMI 
-#### a1) reads in the netcdf output for Pre, Tavg, and SMI for the three regional climate models used (MPI, DMI, KNMI, ICTP, SMHIRCA)
+#### a1) reads in the netcdf output for Pre, Tavg, and SMI for the three regional climate models used (MPI, DMI, KNMI, ICTP, SMHI)
 #### a2) Extract to data.frame with the same time length
 #### a3) Appends data.frame on SpatialPolyonDataFrame with Spatial Information (vg2500_krs)
 #### a4) Export csv dataframes for each Input Variable seperately ( It is not possible to read in one large data.frame combining all information ) (Output Size = 200 MB)
 
 ##############################################################################################
 #### Load Shape with SpatialInformation for the Polygones of the Administrative Districts ####
-vg2500_krs <- read_sf("/Storage/ownCloud/Home/Klimabuero/Proj2/data/data_proj/Input/CLC/", "vg2500_krs")
+vg2500_krs <- read_sf("./data/data_proj/Input/CLC/", "vg2500_krs")
 str(vg2500_krs, 2)
 vg2500_krs$RS
 
@@ -88,15 +85,6 @@ vg2500_krs$RS
 vg2500_krs$RS <- as.integer(str_sub(vg2500_krs$RS, 1,5))
 vg2500_krs$RS
 
-#######################################################
-#### Load order of Landkreise to match with netcdf ####
-order_landkreise <- read_delim("/Storage/ownCloud/Home/Klimabuero/Proj2/data/data_proj/Input/order_landkreise.txt", 
-                               " ", escape_double = FALSE, col_names = FALSE, 
-                               locale = locale(), trim_ws = TRUE)
-order_landkreise$X2
-# View(order_landkreise)
-
-vg2500_krs$RS %in% order_landkreise$X2 # Die Reihenfolge ist die gleich. Daher kann ich weiter mit vg2500_krs$RS arbeiten
 
 ###############################
 ## Make namelist for loop ####
@@ -104,12 +92,13 @@ namelist_MPI     <- c("mSMI_MPI",    "pre_lk_MPI",      "tavg_lk_MPI")
 namelist_DMI     <- c("mSMI_DMI",    "pre_lk_DMI",      "tavg_lk_DMI")
 namelist_KNMI    <- c("mSMI_KNMI",   "pre_lk_KNMI",     "tavg_lk_KNMI")
 namelist_ICTP    <- c("mSMI_ICTP",   "pre_lk_ICTP",     "tavg_lk_ICTP")
-namelist_SMHIRCA <- c("mSMI_SMHIRCA","pre_lk_SMHIRCA",  "tavg_lk_SMHIRCA")
+namelist_SMHI <- c("mSMI_SMHI","pre_lk_SMHI",  "tavg_lk_SMHI")
 
-namelist <- list(namelist_MPI, namelist_DMI, namelist_KNMI, namelist_ICTP, namelist_SMHIRCA )
+namelist <- list(namelist_MPI, namelist_DMI, namelist_KNMI, namelist_ICTP, namelist_SMHI )
 namelist
 
-namelist_models <- c("MPI","DMI","KNMI","ICTP","SMHIRCA")
+namelist_models <- c("DMI","ICTP", "KNMI","MPI","SMHI")
+
 
 
 #######################
@@ -125,9 +114,9 @@ for (i in 1:5){
 
 ###################################  
 ## Directories to load data from ##
-SMI_directory <- paste("/Storage/ownCloud/Home/Klimabuero/Proj2/data/data_proj/Input/", namelist[[i]][1],".nc", sep="")
-Pre_directory <- paste("/Storage/ownCloud/Home/Klimabuero/Proj2/data/data_proj/Input/", namelist[[i]][2],".nc", sep="")
-Tav_directory <- paste("/Storage/ownCloud/Home/Klimabuero/Proj2/data/data_proj/Input/", namelist[[i]][3],".nc", sep="")
+SMI_directory <- paste("./data/data_proj/Input/", namelist[[i]][1],".nc", sep="")
+Pre_directory <- paste("./data/data_proj/Input/", namelist[[i]][2],".nc", sep="")
+Tav_directory <- paste("./data/data_proj/Input/", namelist[[i]][3],".nc", sep="")
 
 ####################
 #### Load NETCDF ###
@@ -163,7 +152,7 @@ SMI <- as.data.frame(SMI[1:412, 1:1788])
 print(dim(SMI))
 # (SMI[1:412, 1:1788])
 'The start data provided in the header are different for SMI compared to the other variables:
-SMI_MPI: 1951, SMI_DMI:1951, SMI_KNMI: 1951, SMI_ICTP: 1951, SMI_SMHIRCA: 1951; Rest 1950
+SMI_MPI: 1951, SMI_DMI:1951, SMI_KNMI: 1951, SMI_ICTP: 1951, SMI_SMHI: 1951; Rest 1950
 But also the length of the calculation differ:
 MPI:1800, DMI:1788, KNMI: 1800, ICTP: 1800, SHMIRCA: 1800
 
@@ -188,7 +177,7 @@ summary(Tav$V1)
 #### Make a list of data.frames ####
 ###################################
 List_DataWide <- list(SMI, Pre, Tav)
-names(List_DataWide) <- c("SMI", "Pre", "Tav")
+names(List_DataWide) <- c("SMI", "P", "T")
 str(List_DataWide,1)
 
 ###################################################################################################
@@ -214,9 +203,9 @@ str(List_DataWide,1)
 #######################
 #### Change Names ####
 #####################
-idx_SM  <- make.names(c(gsub(" ","", paste("SM",as.yearmon(seq(from=as.Date('1951-1-1'), to=as.Date('2099-12-1'), 'month')), sep=""))), unique = TRUE)
-idx_Pre <- make.names(c(gsub(" ","", paste("Pre",as.yearmon(seq(from=as.Date('1951-1-1'), to=as.Date('2099-12-1'), 'month')), sep=""))), unique = TRUE)
-idx_Tav <- make.names(c(gsub(" ","", paste("Tav",as.yearmon(seq(from=as.Date('1951-1-1'), to=as.Date('2099-12-1'), 'month')), sep=""))), unique = TRUE)
+idx_SM  <- make.names(c(gsub(" ","", paste("SMI",as.yearmon(seq(from=as.Date('1951-1-1'), to=as.Date('2099-12-1'), 'month')), sep=""))), unique = TRUE)
+idx_Pre <- make.names(c(gsub(" ","", paste("P",as.yearmon(seq(from=as.Date('1951-1-1'), to=as.Date('2099-12-1'), 'month')), sep=""))), unique = TRUE)
+idx_Tav <- make.names(c(gsub(" ","", paste("T",as.yearmon(seq(from=as.Date('1951-1-1'), to=as.Date('2099-12-1'), 'month')), sep=""))), unique = TRUE)
 
 names(List_DataWide[[1]]) <- idx_SM
 names(List_DataWide[[2]]) <- idx_Pre
@@ -246,7 +235,7 @@ names(List_DataWide[[a]]) <- chartr("Okt","Oct",names(List_DataWide[[a]]))
 
 ####################################################################
 #### Make spatialpolygonsdataframe for each meterological input #### 
-' Use of st_bind_cols to combine the data. Ich can use the sf.data.frame derived from the vg2500 shapefile. The spatial information there are the same 
+' Use of cbind to combine the data. Ich can use the sf.data.frame derived from the vg2500 shapefile. The spatial information there are the same 
   to those used in the Python Script employed by Stephan to extract the Spatial Information of SMI, Pre, and T. 
 '
 
@@ -263,18 +252,22 @@ MeteoSMI_df_wide <-  cbind(List_DataWide[[1]], List_DataWide[[2]])
 dim(MeteoSMI_df_wide)
 MeteoSMI_df_wide <-   cbind(MeteoSMI_df_wide, List_DataWide[[3]])
 dim(MeteoSMI_df_wide)
+str(MeteoSMI_df_wide)
+names(MeteoSMI_df_wide)
 
-##############################################################################################
-#### Make one large SF.Data.Frame necessary to create tidy data.frame used in regression ####
-
-#### Change RS to five digits #####
-vg2500_krs$RS <- as.integer(str_sub(vg2500_krs$RS, 1,5))
-vg2500_krs$RS
-
-#### Combine data with Spatial Information ####
-MeteoSMI_spdf_wide  <-  st_bind_cols(vg2500_krs, MeteoSMI_df_wide)
-dim(MeteoSMI_spdf_wide )
-
+# ##############################################################################################
+# #### Make one large SF.Data.Frame necessary to create tidy data.frame used in regression ####
+# 
+# #### Change RS to five digits #####
+# vg2500_krs$RS <- as.integer(str_sub(vg2500_krs$RS, 1,5))
+# vg2500_krs$RS
+# dim(vg2500_krs)
+# str(vg2500_krs)
+# 
+# #### Combine data with Spatial Information ####
+# MeteoSMI_spdf_wide  <- bind_cols(vg2500_krs, MeteoSMI_df_wide)
+# dim(MeteoSMI_spdf_wide )
+# str(MeteoSMI_spdf_wide,1)
 
 ##################################
 ## Gain some experience with sf ##
@@ -297,18 +290,18 @@ dim(MeteoSMI_spdf_wide )
 #########################################################
 #### Export Data for each Input Variable seperately ####
 #######################################################
-## It is not possible to read in one large data.frame combining all information
-## Further, there is yet no option implemented to overwrite when writing out the data
-' I consider the best way to store the data as .csv for each variable and then read it it in as csv and afterwards combine it with the vg_2500 sf.data.frame. 
- Thus we use the data without the spatial information'
+write.csv2(MeteoSMI_df_wide,   paste("./data/data_proj/","Meteo_df_wide_", namelist_models[[i]],".csv", sep=""))
 
-#### Write CSV.data.frame ####
-write.csv2(List_DataWide[[1]],   paste("./data/data_proj/","SMI_df_wide_", namelist_models[[i]],".csv", sep=""))
-write.csv2(List_DataWide[[2]],   paste("./data/data_proj/","Tav_df_wide_", namelist_models[[i]],".csv", sep=""))
-write.csv2(List_DataWide[[3]],   paste("./data/data_proj/","Pre_df_wide_", namelist_models[[i]],".csv", sep=""))
 
-} # Loop dauert nur 30 Sekunden, daher kann ich Daten eigentlich wieder löschen. 
+} # Loop dauert nur 30 Sekunden, daher kann ich Daten eigentlich wieder löschen. Aber ich 
 
+remove(MeteoSMI_df_wide, Pre, SMI, Tav)
+remove(namelist_DMI,namelist_ICTP, namelist_KNMI, namelist_MPI, namelist_SMHI)
+remove(idx_Pre, idx_SM, idx_Tav)
+remove(List_DataWide)
+remove(Pre_open, SMI_open, Tav_open)
+remove(Pre_directory, SMI_directory, Tav_directory)
+remove(namelist)
 ######################################################################################################################################################################################
 ######################################################################################################################################################################################
 ##############################################################
@@ -344,7 +337,7 @@ Mit Hilfe der Year Variablen werden dann die Beeobachtungen innerhalb der SMI mi
 ###################################
 ## Make namelists for loop () ####
 #################################
-namelist_models <- c("MPI","DMI","KNMI","ICTP","SMHIRCA")
+namelist_models <- c("DMI","ICTP", "KNMI","MPI","SMHI")
 
 
 #######################
@@ -354,35 +347,26 @@ for (i in 1:5){
   
   #####################################################################################################
   #### Read data: first as df, then combine with spatial information derived from Kreis_shape (v) ####
-  SMI_df <- read.csv2(paste("./data/data_proj/","SMI_df_wide_",namelist_models[[i]],".csv", sep=""))
-  Tav_df <- read.csv2(paste("./data/data_proj/","Tav_df_wide_", namelist_models[[i]],".csv", sep=""))
-  Pre_df <- read.csv2(paste("./data/data_proj/","Pre_df_wide_", namelist_models[[i]],".csv", sep=""))
-
-  SMI_df$X <- Tav_df$X <- Pre_df$X <- NULL
-
-  #### Combine Data to wide data.frame including all variables ####
-  MeteoSMI_df_wide  <- cbind(SMI_df, Tav_df)
-  MeteoSMI_df_wide  <- cbind(MeteoSMI_df_wide, Pre_df)
-
-  str(MeteoSMI_df_wide )
-  any(is.na(MeteoSMI_df_wide ))
-
-
+  MeteoSMI_df_wide <- read.csv2(paste("./data/data_proj/","Meteo_df_wide_",namelist_models[[i]],".csv", sep=""))
+  MeteoSMI_df_wide$X <- NULL
+  #### Remove wide data.frame from directory ####
+  unlink(paste("./data/data_proj/","Meteo_df_wide_",namelist_models[[i]],".csv", sep=""), recursive = FALSE, force = FALSE)
+  
   ##############################
   #### Create SF.data.frame ####
   
-  #### Load Shape with SpatialInformation for the Polygones of the Administrative Districts ####
-  vg2500_krs <- read_sf("/Storage/ownCloud/Home/Klimabuero/Proj2/data/data_proj/Input/CLC/", "vg2500_krs")
-
-  str(vg2500_krs, 2)
-  vg2500_krs$RS
-
-  #### Change RS to five digits #####
-  vg2500_krs$RS <- as.integer(str_sub(vg2500_krs$RS, 1,5))
-  vg2500_krs$RS
+  # #### Load Shape with SpatialInformation for the Polygones of the Administrative Districts ####
+  # vg2500_krs <- read_sf("./data/data_proj/Input/CLC/", "vg2500_krs")
+  # 
+  # str(vg2500_krs, 2)
+  # vg2500_krs$RS
+  # 
+  # #### Change RS to five digits #####
+  # vg2500_krs$RS <- as.integer(str_sub(vg2500_krs$RS, 1,5))
+  # vg2500_krs$RS
 
   #### Create SF.data.frame ####
-  MeteoSMI_spdf_wide  <-  st_bind_cols(vg2500_krs, MeteoSMI_df_wide )
+  MeteoSMI_spdf_wide  <-  bind_cols(vg2500_krs, MeteoSMI_df_wide )
   str(MeteoSMI_spdf_wide)
   
   # #### Plot one layer of sf.data.frame ####
@@ -404,7 +388,7 @@ for (i in 1:5){
   #### Generate list of starting(year 1951) and ending points (2099) of each Meteo Month combination necessary for list_MeteoMonthYear ####
   
   ## Where is the first entry of a variable 
-  StartingValue <- 6 
+  StartingValue <- 7
   
   FirstVariableEntry <- c(seq(StartingValue, StartingValue + 11,1), (seq(StartingValue,StartingValue + 11,1) + 1788), (seq(StartingValue,StartingValue + 11,1) + 2*1788))
   names(MeteoSMI_spdf_wide )[FirstVariableEntry]
@@ -432,10 +416,10 @@ for (i in 1:5){
   #### List of names for the new variables - Meteo Month Combination #####
   list_MeteoMonthNames <-list(c("SMI_Jan"), c( "SMI_Feb"), c("SMI_Mar"), c("SMI_Apr"), c("SMI_May"), c("SMI_Jun"),c("SMI_Jul"),c("SMI_Aug"),c("SMI_Sep"), c("SMI_Oct"), 
                        c("SMI_Nov"), c("SMI_Dec"),
-                       c("Pre_Jan"), c( "Pre_Feb"), c("Pre_Mar"), c("Pre_Apr"), c("Pre_May"), c("Pre_Jun"),c("Pre_Jul"),c("Pre_Aug"),c("Pre_Sep"), c("Pre_Oct"), 
-                       c("Pre_Nov"), c("Pre_Dec"),
-                       c("Tav_Jan"), c( "Tav_Feb"), c("Tav_Mar"), c("Tav_Apr"), c("Tav_May"), c("Tav_Jun"),c("Tav_Jul"),c("Tav_Aug"),c("Tav_Sep"), c("Tav_Oct"), 
-                       c("Tav_Nov"), c("Tav_Dec"))
+                       c("P_Jan"), c( "P_Feb"), c("P_Mar"), c("P_Apr"), c("P_May"), c("P_Jun"),c("P_Jul"),c("P_Aug"),c("P_Sep"), c("P_Oct"), 
+                       c("P_Nov"), c("P_Dec"),
+                       c("T_Jan"), c( "T_Feb"), c("T_Mar"), c("T_Apr"), c("T_May"), c("T_Jun"),c("T_Jul"),c("T_Aug"),c("T_Sep"), c("T_Oct"), 
+                       c("T_Nov"), c("T_Dec"))
   list_MeteoMonthNames
   
   
@@ -487,7 +471,7 @@ for (i in 1:5){
   colnames(MeteoMonth_df_tidy)
   
   ## Reduce comId string to years integers only ##
-  MeteoMonth_df_tidy$year <- as.integer(str_sub(MeteoMonth_df_tidy$year,7,10 ))
+  MeteoMonth_df_tidy$year <- as.integer(str_sub(MeteoMonth_df_tidy$year,5,8 ))
   unique(MeteoMonth_df_tidy$year)
   
   ## Reduce ID-Strings to proper comId  ##
@@ -497,9 +481,9 @@ for (i in 1:5){
   
   # #################################################################################
   # ### Abgleichen der neu erstellten Daten mit MeteoSMI_df_wide (orginal Daten) ####
-  # head(MeteoSMI_df_wide$SMJan1951)==head(MeteoMonth_df_tidy$SMI_Jan)
+  # head(MeteoSMI_df_wide$SMIJan1951)==head(MeteoMonth_df_tidy$SMI_Jan)
   # 
-  # tail(MeteoSMI_df_wide$SMDec2099)==tail(MeteoMonth_df_tidy$SMI_Dec)
+  # tail(MeteoSMI_df_wide$SMIDec2099)==tail(MeteoMonth_df_tidy$SMI_Dec)
   # 
   # ## Erstellen und überprüfen der beiden Vektoren, die jeweils den SMI des Jahres 19999 im Monat Januar wiedergebeb
   # ## Vector in MeteoMonth_df_tidy des SMI Januar 19999
@@ -507,21 +491,21 @@ for (i in 1:5){
   # length(MeteoMonth_df_tidy$SMI_Jan[MeteoMonth_df_tidy$year==1999])
   # 
   # ## Vector in MeteoSMI_df_wide des SMI Januar 19999
-  # MeteoSMI_df_wide$SMJan1999
-  # length(MeteoSMI_df_wide$SMJan1999)
+  # MeteoSMI_df_wide$SMIJan1999
+  # length(MeteoSMI_df_wide$SMIJan1999)
   # 
-  # match(MeteoSMI_df_wide$SMJan1999,MeteoMonth_df_tidy$SMI_Jan[MeteoMonth_df_tidy$year==1999]) # check
-  # all(MeteoMonth_df_tidy$SMI_Jan[MeteoMonth_df_tidy$year==1999]%in%MeteoSMI_df_wide$SMJan1999) # check
+  # match(MeteoSMI_df_wide$SMIJan1999,MeteoMonth_df_tidy$SMI_Jan[MeteoMonth_df_tidy$year==1999]) # check
+  # all(MeteoMonth_df_tidy$SMI_Jan[MeteoMonth_df_tidy$year==1999]%in%MeteoSMI_df_wide$SMIJan1999) # check
   # # Daten sehen gut aus
-  
+
   ############################################################################################################
   #### Produce lagged variabled of SMI and the meteorological variables for the months after the harvest ####
   ##########################################################################################################
   names(MeteoMonth_df_tidy)
   
   ## List of variables to produce lags 
-  list_slide <- c("SMI_Aug","SMI_Sep","SMI_Oct","SMI_Nov","SMI_Dec", "Tav_Aug","Tav_Sep","Tav_Oct","Tav_Nov","Tav_Dec","Pre_Aug","Pre_Sep","Pre_Oct","Pre_Nov","Pre_Dec")
-  
+  list_slide <- c("SMI_Aug","SMI_Sep","SMI_Oct","SMI_Nov","SMI_Dec", "T_Aug","T_Sep","T_Oct","T_Nov","T_Dec",
+                  "P_Aug","P_Sep","P_Oct","P_Nov","P_Dec")
   
   ## Loop through the list 
   for (k in 1:length(list_slide)){
@@ -548,3 +532,4 @@ for (i in 1:5){
 
 } ## close of reshape loop 
 
+rm(list=ls())

@@ -3,7 +3,7 @@
 ################################################################
 #### Description ####
 '
-Here I look at plots which average over all climate models ("MPI","DMI","KNMI","ICTP","SMHIRCA")
+Here I look at plots which average over all climate models ("MPI","DMI","KNMI","ICTP","SMHI")
 
 - Loop through different prediction models  
 - read in tidy data for each prediction model
@@ -501,7 +501,7 @@ PredictData_df_tidy$X <- NULL
 # #########################################################################
 # #### Loop over all models and years to produce maps of predictions ####
 # ######################################################################
-# namelist2 <- c("DMI","ICTP","KNMI","MPI","SMHIRCA")
+# namelist2 <- c("DMI","ICTP","KNMI","MPI","SMHI")
 # listyear <- seq (1999, 2099)
 # 
 # # i = 1; j = 1
@@ -562,11 +562,11 @@ PredictData_df_tidy$X <- NULL
 #   ICTP <-  as.data.frame(rep("ICTP", 51))
 #   KNMI <- as.data.frame( rep("KNMI",51))
 #   MPI <- as.data.frame( rep("MPI", 51))
-#   SMHIRCA <-  as.data.frame(rep ("SMIHIRCA", 51))
+#   SMHI <-  as.data.frame(rep ("SMIHIRCA", 51))
 #   
-#   names(DMI) <- names(ICTP) <- names(KNMI) <- names(MPI) <- names(SMHIRCA) <- "Model"
+#   names(DMI) <- names(ICTP) <- names(KNMI) <- names(MPI) <- names(SMHI) <- "Model"
 #   
-#   model <- rbind(DMI, ICTP, KNMI, MPI, SMHIRCA)
+#   model <- rbind(DMI, ICTP, KNMI, MPI, SMHI)
 #   
 #   time <- cbind(model, time)
 #   

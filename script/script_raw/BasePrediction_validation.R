@@ -863,7 +863,7 @@ for (s in 1:length(modelListMatrix) ){
     From here on I am using the projections derived from the climate models to make predictions'
   
   ## Create Namelist used in the models ##
-  namelist_models <- c("MPI","DMI","KNMI","ICTP","SMHIRCA")
+  namelist_models <- c("MPI","DMI","KNMI","ICTP","SMHI")
   
   #### Create container to store tidy.data.frames of all models ####
   predictData_anomaly_tidy_all <- data.frame()

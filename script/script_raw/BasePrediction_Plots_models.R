@@ -106,8 +106,8 @@ vg2500_krs$RS
 #### Create lists for the loop ####
 
 ## Create List of models to loop trrough##
-namelist_models <- c("MPI","DMI","KNMI","ICTP","SMHIRCA")
-# PredictData_df_tidy <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list())
+namelist_models <- c("DMI","ICTP", "KNMI","MPI","SMHI")
+# PredictData_df_tidy <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list())
 
 
 ## List of start and end dates of climate periods ##
@@ -123,23 +123,23 @@ modelListYieldNames <-list("Yield: SMI_6_Jun_Aug", "Yield: SMI_6_Jul")
 
 #### Create container lists for predictive models and climate models ####
 ' These containers store the plots of the yield predictions which are needed for the combined plots.'
-plot_mean_1971_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ), 
-                            lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ) )
+plot_mean_1971_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ), 
+                            lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ) )
 
-plot_mean_diff2021_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ), 
-                                lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ) )
+plot_mean_diff2021_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ), 
+                                lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ) )
 
-plot_mean_diff2070_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ), 
-                                lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ) )
+plot_mean_diff2070_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ), 
+                                lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ) )
 
-plot_sd_1971_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ), 
-                          lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ) )
+plot_sd_1971_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ), 
+                          lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ) )
 
-plot_sd_diff2021_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ), 
-                              lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ) )
+plot_sd_diff2021_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ), 
+                              lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ) )
 
-plot_sd_diff2070_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ), 
-                              lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ) )
+plot_sd_diff2070_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ), 
+                              lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ) )
 
 ##################################################
 #### Start of loop through prediction models #####
@@ -458,8 +458,8 @@ for (s in 1:length(modelListMatrixNames)){
 # #### Create lists for the loop ####
 # 
 # ## Create List of models to loop trrough##
-# namelist_models <- c("MPI","DMI","KNMI","ICTP","SMHIRCA")
-# # PredictData_df_tidy <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list())
+# namelist_models <- c("DMI","ICTP", "KNMI","MPI","SMHI")
+# # PredictData_df_tidy <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list())
 # 
 # 
 # ## List of start and end dates of climate periods ##
@@ -475,23 +475,23 @@ for (s in 1:length(modelListMatrixNames)){
 # 
 # # #### Create container lists for predictive models and climate models ####
 # # ' These containers store the plots of the yield predictions which are needed for the combined plots.'
-# # plot_mean_1971_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ), 
-# #                             lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ) )
+# # plot_mean_1971_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ), 
+# #                             lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ) )
 # # 
-# # plot_mean_diff2021_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ), 
-# #                                 lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ) )
+# # plot_mean_diff2021_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ), 
+# #                                 lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ) )
 # # 
-# # plot_mean_diff2070_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ), 
-# #                                 lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ) )
+# # plot_mean_diff2070_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ), 
+# #                                 lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ) )
 # # 
-# # plot_sd_1971_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ), 
-# #                           lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ) )
+# # plot_sd_1971_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ), 
+# #                           lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ) )
 # # 
-# # plot_sd_diff2021_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ), 
-# #                               lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ) )
+# # plot_sd_diff2021_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ), 
+# #                               lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ) )
 # # 
-# # plot_sd_diff2070_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ), 
-# #                               lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ) )
+# # plot_sd_diff2070_list <- list(lm.fit_SMI_6_Jun_Aug_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ), 
+# #                               lm.fit_SMI_6_Jul_modelmatrix = list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ) )
 # 
 # ##################################################
 # #### Start of loop through prediction models #####
@@ -867,7 +867,7 @@ for (s in 1:length(modelListMatrixNames)){
 # #########################################################################
 # #### Loop over all models and years to produce maps of predictions ####
 # ######################################################################
-# namelist2 <- c("MPI","DMI","KNMI","ICTP","SMHIRCA")
+# namelist2 <- c("MPI","DMI","KNMI","ICTP","SMHI")
 # listyear <- seq (1999, 2099)
 # 
 # # i = 1; j = 1
@@ -928,11 +928,11 @@ for (s in 1:length(modelListMatrixNames)){
 #   ICTP <-  as.data.frame(rep("ICTP", 51))
 #   KNMI <- as.data.frame( rep("KNMI",51))
 #   MPI <- as.data.frame( rep("MPI", 51))
-#   SMHIRCA <-  as.data.frame(rep ("SMIHIRCA", 51))
+#   SMHI <-  as.data.frame(rep ("SMIHIRCA", 51))
 #   
-#   names(DMI) <- names(ICTP) <- names(KNMI) <- names(MPI) <- names(SMHIRCA) <- "Model"
+#   names(DMI) <- names(ICTP) <- names(KNMI) <- names(MPI) <- names(SMHI) <- "Model"
 #   
-#   model <- rbind(DMI, ICTP, KNMI, MPI, SMHIRCA)
+#   model <- rbind(DMI, ICTP, KNMI, MPI, SMHI)
 #   
 #   time <- cbind(model, time)
 #   

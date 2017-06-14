@@ -4,7 +4,7 @@
 
 #### Description ####
 '
-Here I look at climate model specific plots ("MPI","DMI","KNMI","ICTP","SMHIRCA")
+Here I look at climate model specific plots ("MPI","DMI","KNMI","ICTP","SMHI")
 
 Loop through five climate models 
 - read in tidy data for each climate model
@@ -92,18 +92,18 @@ vg2500_krs$RS <- as.integer(str_sub(vg2500_krs$RS, 1,5))
 vg2500_krs$RS
 
 ## Create List ##
-namelist_models <- c("MPI","DMI","KNMI","ICTP","SMHIRCA")
-# MeteoMonth_df_tidy <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list())
+namelist_models <- c("DMI","ICTP", "KNMI","MPI","SMHI")
+# MeteoMonth_df_tidy <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list())
 
 #################################################################
 #### Make container which stores the results of each RCM run ####
 #### Create container lists for predictive models and climate models ####
 ' These containers store the plots of the yield predictions which are needed for the combined plots.'
-plot_mean_diff2070_TavJul_list <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() )
-plot_mean_diff2070_PreJul_list <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() )
-plot_mean_diff2070_SMIJun_list <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() )
-plot_mean_diff2070_SMIAug_list <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ) 
-plot_mean_diff2070_SMIJul_list <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHIRCA=list() ) 
+plot_mean_diff2070_TavJul_list <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() )
+plot_mean_diff2070_PreJul_list <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() )
+plot_mean_diff2070_SMIJun_list <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() )
+plot_mean_diff2070_SMIAug_list <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ) 
+plot_mean_diff2070_SMIJul_list <- list(MPI=list(), DMI=list(), KNMI=list(), ICTP=list(), SMHI=list() ) 
 
 
 ###########################################
