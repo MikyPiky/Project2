@@ -108,7 +108,7 @@ modelListMatrixNames <- list("lm.fit_SMI_6_Jun_Aug_modelmatrix", "lm.fit_SMI_6_J
 # modelListMatrixNames <- list("lm.fit_SMI_6_Jun_Aug", "lm.fit_SMI_6_Jul")
 
 ## Names used in figures
-modelListYieldNames <-list("Yield: SMI_6_Jun_Aug", "Yield: SMI_6_Jul")
+modelListYieldNames <-list("Model: combined", "Model: July")
 
 #### Create container for diff plots ####
 ' These containers store the plots of the yield predictions which are needed for the combined plots.'
@@ -159,13 +159,19 @@ PredictData_df_tidy$X <- NULL
   names(PredictData_df_tidy)
   summary(PredictData_df_tidy)
   
-  #### Loop to generate data.frame with Means and SDs of Y and Y_anomaly for the three different climate zones ####
+  #############################################################################################################################
+  #### Loop to generate data.frame with Means, SDs,, Max, and Min of Y and Y_anomaly for the three different climate zones ####
+  #############################################################################################################################
   for (r in 1:3){
     PredictData_df_tidy_summaries_average_list[[r]]  <- 
       PredictData_df_tidy  %>% 
       filter(year >=  climateyears_list[[1]][r] & year <= climateyears_list[[2]][r]) %>% 
       group_by(comId)     %>%      
-      summarise( Y_mean= mean(Y), Y_sd = sd(Y), Y_sum= sum(Y), Y_anomaly_mean= mean(Y_anomaly), Y_anomaly_sd = sd(Y_anomaly))
+      summarise( Y_mean= mean(Y), Y_sd = sd(Y), Y_sum= sum(Y), 
+                 Y_anomaly_mean= mean(Y_anomaly), Y_anomaly_sd = sd(Y_anomaly), 
+                 Y_max = max(Y), Y_min = min(Y), 
+                 Y_anomaly_max = max(Y_anomaly), Y_anomaly_min = min(Y_anomaly))
+    
     
     #### Merge with Spatial Information ####
     PredictData_df_tidy_summaries_sf_average_list[[r]] <- merge(vg2500_krs, PredictData_df_tidy_summaries_average_list[[r]], by.x = "RS", by.y = "comId", all.x=T, sort=T) 
@@ -214,7 +220,48 @@ PredictData_df_tidy$X <- NULL
             out=paste("./figures/figures_exploratory/Proj/", modelListMatrixNames[[s]] , "/DeskriptiveStats_2021_", "average_all_models",".txt", sep=""))
   stargazer(as.data.frame(PredictData_df_tidy_summaries_average_list[[3]]), type = "text", title="Descriptive statistics", digits=3,
             out=paste("./figures/figures_exploratory/Proj/", modelListMatrixNames[[s]] , "/DeskriptiveStats_2070_", "average_all_models",".txt", sep=""))
-
+  ##############################################################################################################################################################################
+  ##############################################################################################################################################################################
+  
+  ##############################################################################################################################################################################
+  #### Plot of Maximal and Minimal Values of Yield Anomales ####
+  ##############################################################################################################################################################################
+  summary((PredictData_df_tidy_summaries_sf_average_list[[1]]))
+  summary((PredictData_df_tidy_summaries_sf_average_list[[2]]))
+  summary(PredictData_df_tidy_summaries_sf_average_list[[3]])
+  
+  climate_periods <- list("1971 - 2000", "2021 - 2050", "2070 - 2099")
+  
+  #### Loop over all three climate periods ####
+  for (r in 1:length(climate_periods)){
+    ## Maximal Values
+    sc <- scale_fill_gradientn("Yield Anomaly \n - Max", colours = myPalette(11), limits=c(-400, 400))
+    plot_anomaly_max <-
+      ggplot(PredictData_df_tidy_summaries_sf_average_list[[r]]) +
+      geom_sf(aes(fill = Y_anomaly_max)) +
+      ggtitle(paste( modelListYieldNames[[s]],", Period: ", climate_periods[r] , sep="")) + sc + 
+      theme_bw() + 
+      theme(plot.title = element_text(hjust = 0.5))
+    
+    ggsave(paste("./figures/figures_exploratory/Proj/", modelListMatrixNames[[s]],"/plot_max_Yanomaly_", climate_periods[r] ,"_", "all_models",".pdf", sep=""), 
+           plot = plot_anomaly_max, width=21, height=8)
+    
+    ## Minimal Values    
+    sc <- scale_fill_gradientn("Yield Anomaly \n - Min", colours = myPalette(11), limits=c(-400, 400))
+    plot_anomaly_min <-
+      ggplot(PredictData_df_tidy_summaries_sf_average_list[[r]]) +
+      geom_sf(aes(fill = Y_anomaly_min)) +
+      ggtitle(paste( modelListYieldNames[[s]],", Period: 1971 - 2000", sep="")) + sc +
+      theme_bw()+ 
+      theme(plot.title = element_text(hjust = 0.5))
+    
+    ggsave(paste("./figures/figures_exploratory/Proj/", modelListMatrixNames[[s]],"/plot_min_Yanomaly_", climate_periods[r] ,"_", "all_models",".pdf", sep=""), 
+           plot = plot_anomaly_min, width=21, height=8)
+  }
+  
+  
+  
+  
   ##############################################################################################################################################################################
   #### Plot of Means ####
   ##############################################################################################################################################################################
@@ -415,170 +462,3 @@ PredictData_df_tidy$X <- NULL
 
 
 
-
-# 
-# ##############################################################################################################################################################################
-# ##############################################################################################################################################################################
-# ##############################################################
-# #### Plot Maps of predicted data (yearly considerations) ####
-# ############################################################
-# 
-# #### Read in Predicted Data ####
-# 
-# predictData <- read.csv("./data/data_processed/predictData_JunSMI6JulPoly3TavPreAugSMI6_biasCorrected.csv")
-# predictData$X  <- NULL
-# str(predictData) # 262 obs
-# 
-# #### Read in Spatial Data Frame with Spatial Reference from shape file ####
-# vg2500_krs <- readOGR("/Storage/ownCloud/Home/Klimabuero/Proj1/data//data_raw/4_michael/adminitrative_borders_Ger/", "vg2500_krs")
-# str(vg2500_krs,2)
-# vg2500_krs@data$RS
-# 
-# names(vg2500_krs) <- c("USE"   ,     "comId"    ,     "GEN"    ,    "SHAPE_LENG", "SHAPE_AREA")
-# names(vg2500_krs)
-# 
-# vg2500_krs@data$comId <- as.factor(as.numeric(str_sub(vg2500_krs@data$comId,1,5)))
-# 
-# ## Make data.frame with comIds only to merge ##
-# vg2500_krs_merge <- as.data.frame(vg2500_krs@data$comId)
-# vg2500_krs_merge
-# 
-# str(vg2500_krs_merge)
-# names(vg2500_krs_merge) <- "comId"
-# 
-# 
-# #### Change order of vg2500_krs_order ####
-# str(vg2500_krs,2)
-# 
-# vg2500_krsordered <- vg2500_krs[order(vg2500_krs$comId),]
-# rownames(vg2500_krsordered)
-# 
-# vg2500_krsordered$comId
-# 
-# rownames(vg2500_krsordered@data) <- 0:411
-# 
-# 
-# ### Merge comId Vector of vg2500_krs  (vg2500_krs_merge) and PredictData_train to get same number of rows (412) ####
-# predictData_comId <- merge(vg2500_krs_merge, predictData, by="comId", all.x=T)
-# predictData_comId$comId
-# 
-# predictData_comId[1:20,1:10]
-# 
-# #### Make SpatialDataFrame for maps ####
-# rownames(predictData_comId) <- 0:411
-# 
-# 
-# predictData_comId_sp <- NULL
-# predictData_comId$comId <- NULL
-# predictData_comId_sp <- spCbind(vg2500_krsordered, predictData_comId)
-# names(predictData_comId_sp)
-# 
-# 
-# #### Modify trellis theme for plotting ####
-# my.theme = trellis.par.get()
-# names(my.theme)
-# my.theme$panel.background
-# 
-# trellis.par.set("background", list(col = "white"))
-# trellis.par.set("panel.background", list(col = "white"))
-# trellis.par.set("strip.background", list(col = "white"))
-# trellis.par.set("fontsize", list(text=15, points=10))
-# 
-# my.theme$strip.background
-# my.theme$axis.line
-# my.theme$strip.border
-# # my.theme$strip.border$col <- c("#000000", "#000000","#000000", "#000000", "#000000", "#000000","#000000")
-# 
-# show.settings()
-# 
-# 
-# #### Set color scheme for plots ####
-# at=(seq(-0.4, 0.4, 0.05))
-# length(at)
-# 
-# cs1 <- colorRampPalette(c('#6d3f07','#bf812d','#dfc27d','#f6e8c3','#c7eae5','#35978f','#003c30','#002c3b'))(17)
-# 
-# #########################################################################
-# #### Loop over all models and years to produce maps of predictions ####
-# ######################################################################
-# namelist2 <- c("DMI","ICTP","KNMI","MPI","SMHI")
-# listyear <- seq (1999, 2099)
-# 
-# # i = 1; j = 1
-# 
-# zcol<- NULL
-# 
-# for(j in 1:101){
-#   for (i in 1:5){
-#     zcol <- c(zcol,paste(namelist2[[i]], listyear[[j]], sep=""))}
-#   zcol
-#   plot <- spplot(predictData_comId_sp, zcol, at=at, col.regions= cs1)
-#   
-#   pdf(paste("./figures/figures_proj/JunSMI6JulPol3PreTavAugSMI6_biasCorrected/", listyear[[j]],".pdf", sep=""))
-#   print(plot )
-#   dev.off()
-#   
-#   zcol<-NULL
-# }
-# 
-# 
-# 
-# 
-# ###########################################
-# #### Make time series plots for model ####
-# # predictData <- read.csv("./data/data_processed/predictData_JunSMI6AugSMI6.csv")
-# predictData <- read.csv("./data/data_processed/predictData_JunSMI6JulPoly3TavPreAugSMI6_biasCorrected.csv")
-# predictData$X <- NULL
-# 
-# summary(predictData)
-# 
-# names(predictData)[c(1,50:150, 199:299, 348:448, 497:597, 646:746)]
-# predictData <- predictData[, c(1,507:1251)]
-# dim(predictData)
-# 
-# predictData_19992099 <- predictData[,c(1,50:150, 199:299, 348:448, 497:597, 646:746)] 
-# names(predictData_19992099)
-# 
-# predictData_20492099 <- predictData[,c(1,100:150, 249:299, 398:448, 547:597, 696:746)] 
-# names(predictData_20492099)
-# 
-# for (l in 1:262){
-#   comId <- predictData_20492099[l, 1]
-#   time <-  predictData_20492099[l, 2:length(predictData_20492099)]
-#   time <-  stack(time)
-#   time
-#   dim(time)
-#   time$ind <- NULL
-#   
-#   years <- rep(seq(2049,2099), 5)
-#   
-#   head(time)
-#   dim(time)
-#   length(years)
-#   
-#   time <- cbind(years, time)
-#   
-#   DMI <- as.data.frame(rep("DMI", 51))
-#   ICTP <-  as.data.frame(rep("ICTP", 51))
-#   KNMI <- as.data.frame( rep("KNMI",51))
-#   MPI <- as.data.frame( rep("MPI", 51))
-#   SMHI <-  as.data.frame(rep ("SMIHIRCA", 51))
-#   
-#   names(DMI) <- names(ICTP) <- names(KNMI) <- names(MPI) <- names(SMHI) <- "Model"
-#   
-#   model <- rbind(DMI, ICTP, KNMI, MPI, SMHI)
-#   
-#   time <- cbind(model, time)
-#   
-#   time$years <- as.numeric(time$years)
-#   
-#   timeseries <- ggplot(time, aes(years, values)) + 
-#     ylim(-0.5, 0.5) +
-#     geom_line() + facet_wrap(~Model) + 
-#     geom_smooth(method = "lm", se = FALSE) + 
-#     ggtitle(paste(comId))
-#   
-#   ggsave(paste("./figures/figures_proj/JunSMI6JulPol3PreTavAugSMI6_biasCorrected_2049-2099/timeseries", comId[[1]],".pdf", sep=""), timeseries, device = "pdf", width=6, height=6 )
-# }
-# 
-# 

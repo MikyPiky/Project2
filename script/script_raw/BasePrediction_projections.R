@@ -12,7 +12,7 @@ Script to make climate projectinos for the period 1951 - 2099 for each RCM () an
 #### Output ####
 ## Files
 '
-  - yieldData_meteo (data.frame after Preparation scheme described above) -> /Proj2/data/data_processed/
+  - Yield_predict_complete_1951-2099_tidy.csv -> /Proj2/data/data_proj/output/
 '
 ## Plots
 ''

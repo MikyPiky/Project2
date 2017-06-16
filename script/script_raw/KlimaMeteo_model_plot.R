@@ -80,8 +80,6 @@ library(stargazer)
 #### Calculate Averages and SD for the Climate Periods (1971 - 2000, 2021 - 2050, 2070 - 2099) for each Meteo Variables within comId ####
 ########################################################################################################################################
 
-
-
 ######################################################################################
 #### Laden der Shapes mit den Polygonen der Kreise und deren räumliche Zuordnung ####
 vg2500_krs <- read_sf("./..//Proj1/data//data_spatial/", "vg2500_krs")
